@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexSites</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            background: rgb(7, 20, 88);
+        }
+        .logo{
+            background: rgb(53, 74, 179);
+            display: flex;
+            gap: 5px;
+            justify-content: space-between;
+            font-size: 19px;
+            padding: 15px;
+            border-bottom: 2px solid rgb(118, 118, 118);
+            color: white;
+        }
+        .logo1{
+            display: flex;
+            gap: 5px;
+        }
+        .logo a{
+            color: black;
+            text-decoration: none;
+        }
+        .catalogo{
+            display: flex;
+            gap: 18px;
+        }
+        .logo a:hover{
+            border-bottom: 2px solid black;
+            transition: all 0.4s;
+        }
+        .logo a:active{
+            color: #ccc;
+        }
+        .s1{
+            color: rgb(0, 0, 0);
+        }
+        
+        /* Tela2 */
+        .tela2{
+            display: flex;
+            justify-content: center;
+        }
+        .pts{
+            margin-top: 150px;
+            text-align: center;
+            background: #ccc;
+            width: 250px;
+            height: 250px;
+            border-radius: 25px;
+            border: 1px solid black;
+        }
+        .logo2{
+            border-bottom: 1px solid black;
+        }
+        .ps{
+            margin-top: 5px;
+        }
+        .ps button
+        {
+            cursor: pointer;
+        }
+
+        /* Tela */
+       .resultado{
+        color: #ccc;
+        padding: 15px;
+        border-bottom: 1px solid #ccc;
+       }
+       .resultado a{
+        color: blue;
+        text-decoration: none;
+        cursor: pointer;
+       }
+       .resultado a:hover{
+         border-bottom: 1px solid blue;
+       }
+    </style>
+</head>
+<body>
+    <!-- Logo -->
+    <nav class="logo">
+     <div class="logo1">
+        <h3 class="s1">Nex</h3>
+        <h3 class="s2">Sites</h3>
+        <!-- Catalogo -->
+    </div>
+      <div class="catalogo">
+            <a href="#" id="criar">
+                <span>Criar</span>
+            </a>
+            <a href="#" id="procurar">
+                <span>Procurar</span>
+            </a>
+            <a href="#" id="meusites">
+                <span>Meus Sites</span>
+            </a>
+         </div>
+    </nav>
+    <!-- Tela -->
+     <nav id="tela"></nav>
+     <script src="java.js"></script>
+</body>
+</html>
