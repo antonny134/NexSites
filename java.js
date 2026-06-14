@@ -1,4 +1,3 @@
-
 const tela = document.getElementById("tela")
 const criar = document.getElementById("criar")
 const meusites = document.getElementById("meusites")
@@ -116,5 +115,72 @@ meusites.addEventListener("click", function(){
 
         </div>
         `
+    })
+})
+
+// Procurar
+const procura = document.getElementById("procurar")
+
+procura.addEventListener("click", function(){
+
+    tela.innerHTML = `
+     <div class="procurar">
+        <input type="text" 
+        placeholder="Procurar Sites..." 
+        id="pesquisa">
+        
+        <i class="bi bi-search"></i>
+     </div>
+
+     <div id="resultadoPesquisa"></div>
+    `
+
+    const pesquisa = document.getElementById("pesquisa")
+    const resultadoPesquisa = document.getElementById("resultadoPesquisa")
+
+    // Quando digitar
+    pesquisa.addEventListener("input", function(){
+
+        const valor = pesquisa.value.toLowerCase()
+
+        resultadoPesquisa.innerHTML = ""
+
+        // Filtra os sites
+        const encontrados = historico.filter(function(site){
+            return site.nome.toLowerCase().includes(valor)
+        })
+
+        // Se não encontrar
+        if(encontrados.length === 0){
+            resultadoPesquisa.innerHTML = `
+            <p style="color:white; padding:15px;">
+                Nenhum site encontrado.
+            </p>
+            `
+            return
+        }
+
+        // Mostrar resultados
+        encontrados.forEach(function(site){
+
+            resultadoPesquisa.innerHTML += `
+            <div class="resultado">
+
+                <h2>${site.nome}</h2>
+
+                <strong>Site:</strong>
+
+                <a href="${site.url}" target="_blank">
+                    ${site.url}
+                </a>
+
+                <p>
+                    <strong>Descrição:</strong>
+                    ${site.descri}
+                </p>
+
+            </div>
+            `
+        })
     })
 })
