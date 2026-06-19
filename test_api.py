@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import requests
+import requests 
 import json
 
 BASE_URL = "http://localhost:3000/api"
