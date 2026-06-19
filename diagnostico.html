@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexSites - Diagnóstico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #2a2a2a;
+            color: white;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .box {
+            background: #333;
+            border: 1px solid #666;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            color: #1dbf1d;
+        }
+        .error {
+            color: #ff6b6b;
+        }
+        button {
+            background: #1dbf1d;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 NexSites - Diagnóstico</h1>
+    <p>Use esta página para verificar se o servidor está funcionando corretamente.</p>
+    
+    <div class="box">
+        <h3>1. Teste de Conexão com Servidor</h3>
+        <button onclick="testarServidor()">Testar Conexão</button>
+        <p id="resultado1"></p>
+    </div>
+
+    <div class="box">
+        <h3>2. Teste de API - Listar Sites</h3>
+        <button onclick="testarAPI()">Testar API /api/sites</button>
+        <p id="resultado2"></p>
+    </div>
+
+    <div class="box">
+        <h3>3. Teste de Registro</h3>
+        <button onclick="testarRegistro()">Testar Registro</button>
+        <p id="resultado3"></p>
+    </div>
+
+    <div class="box">
+        <h3>4. Teste de Login</h3>
+        <button onclick="testarLogin()">Testar Login</button>
+        <p id="resultado4"></p>
+    </div>
+
+    <div class="box">
+        <h3>5. Voltar para o Site</h3>
+        <button onclick="window.location.href='/'">Ir para NexSites</button>
+    </div>
+
+    <script>
+        async function testarServidor() {
+            const r1 = document.getElementById('resultado1')
+            try {
+                const res = await fetch('/api/sites', { method: 'GET' })
+                if (res.ok) {
+                    r1.innerHTML = '<span class="success">✓ Servidor funcionando!</span>'
+                } else {
+                    r1.innerHTML = `<span class="error">✗ Servidor respondeu com erro: ${res.status}</span>`
+                }
+            } catch (e) {
+                r1.innerHTML = `<span class="error">✗ Erro: Servidor não está respondendo</span><br><small>Você rodou "node server.js"?</small>`
+            }
+        }
+
+        async function testarAPI() {
+            const r2 = document.getElementById('resultado2')
+            try {
+                const res = await fetch('/api/sites')
+                const data = await res.json()
+                r2.innerHTML = `<span class="success">✓ API funcionando!</span><br><small>Sites encontrados: ${data.length}</small>`
+            } catch (e) {
+                r2.innerHTML = `<span class="error">✗ Erro: ${e.message}</span>`
+            }
+        }
+
+        async function testarRegistro() {
+            const r3 = document.getElementById('resultado3')
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: `teste_${Date.now()}`, password: '123' })
+                })
+                const data = await res.json()
+                if (res.ok) {
+                    r3.innerHTML = `<span class="success">✓ Registro funcionando!</span><br><small>${JSON.stringify(data)}</small>`
+                } else {
+                    r3.innerHTML = `<span class="error">✗ Erro: ${data.error}</span>`
+                }
+            } catch (e) {
+                r3.innerHTML = `<span class="error">✗ Erro: ${e.message}</span>`
+            }
+        }
+
+        async function testarLogin() {
+            const r4 = document.getElementById('resultado4')
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin' })
+                })
+                const data = await res.json()
+                if (res.ok && data.token) {
+                    r4.innerHTML = `<span class="success">✓ Login funcionando!</span><br><small>Token: ${data.token.substring(0, 20)}...</small>`
+                } else {
+                    r4.innerHTML = `<span class="error">✗ Erro: ${data.error || 'Credenciais inválidas'}</span>`
+                }
+            } catch (e) {
+                r4.innerHTML = `<span class="error">✗ Erro: ${e.message}</span>`
+            }
+        }
+    </script>
+</body>
+</html>

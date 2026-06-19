@@ -34,12 +34,8 @@
             gap: 5px;
         }
         .logo a{
-            color: black;
+            color: #fff;
             text-decoration: none;
-        }
-        .catalogo{
-            display: flex;
-            gap: 18px;
         }
         .logo a:hover{
             border-bottom: 2px solid #00f700;
@@ -106,17 +102,7 @@
         }
         /* Tela */
        .resultado{
-        color: #ccc;
-        padding: 15px;
         border-bottom: 1px solid #ccc;
-       }
-       .resultado a{
-        color: blue;
-        text-decoration: none;
-        cursor: pointer;
-       }
-       .resultado a:hover{
-         border-bottom: 1px solid blue;
        }
 
        /* Footer */
@@ -126,6 +112,8 @@
         border-top: 2px solid #00f700;
         color: white;
         font-size: 17px;
+        z-index: 1000;
+        background: #000;
        }
 
        /* Procurar */
@@ -156,6 +144,101 @@
        .procurar i:hover{
         color: #1dbf1d;
        }
+
+       /* home */
+       .home{
+        padding: 10px;
+        color: #1dbf1d;
+        position: fixed;
+       }
+
+       /* User status */
+       .user-status{
+        color: #1dbf1d;
+        font-size: 14px;
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+       }
+       .user-status #logoutBtn{
+        background: #d9534f;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+       }
+       .user-status #logoutBtn:hover{
+        background: #c9423f;
+       }
+
+       /* catalogo */
+       .catalogo{
+        border: 1px solid #ccc;
+        border-radius: 22px;
+        padding: 0px 7px;
+        display: flex;
+        gap: 18px;
+        background: rgba(0, 0, 0, 0.271);
+       }
+       .catalogo:hover{
+        padding: 0px 10px;
+        transition: all 0.9s;
+        border-bottom: #000;
+        border: 1px solid #1dbf1d;
+       }
+       .catalogo a:hover{
+        border-bottom: 2px solid #ccc;
+       }
+
+       /* Produto */
+       .product-card{
+        margin-top: 10px;
+        gap: 10px;
+        border: 2px solid black;
+        border-radius: 10px;
+        color: #ccc;
+        padding: 15px;
+       }
+       .product-card h2{
+        color: #1dbf1d;
+        
+       }
+       .product-card a{
+        color: blue;
+        text-decoration: none;
+        cursor: pointer;
+       }
+       .product-card a:hover{
+         border-bottom: 1px solid blue;
+       }
+       .product-card:hover{
+        border: 2px solid #1dbf1d;
+        transition: all 0.6s;
+       }
+
+       /* sites populares */
+       .sites{
+        margin-top: 10px;
+        gap: 10px;
+        border: 2px solid black;
+        border-radius: 10px;
+        color: #ccc;
+        padding: 15px;
+       }
+       .sites h2{
+        color: #1dbf1d;
+       }
+       .sites a{
+        color: blue;
+        text-decoration: none;
+        cursor: pointer;
+       }
+       .sites a:hover{
+         border-bottom: 1px solid blue;
+       }
     </style>
 </head>
 <body>
@@ -167,11 +250,17 @@
         <!-- Catalogo -->
     </div>
       <div class="catalogo">
-            <a href="#" id="home">
+            <a href="" id="home">
                 <span>Home</span>
             </a>
             <a href="#" id="criar">
                 <span>Criar</span>
+            </a>
+            <a href="#" id="cadastro">
+                <span>Cadastro</span>
+            </a>
+            <a href="#" id="loginBtn">
+                <span>Login</span>
             </a>
             <a href="#" id="procurar">
                 <span>Procurar</span>
@@ -182,7 +271,14 @@
          </div>
     </nav>
     <!-- Tela -->
-     <nav id="tela"></nav>
+     <nav id="tela">
+        <nav class="home" id="home2">
+            <!-- Home -->
+             <h3>Sites Populares</h3>
+             <!-- Sites -->
+              <nav class="sites" id="sites"></nav>
+        </nav>
+     </nav>
      <script src="java.js"></script>
     <!-- Footer -->
      <footer id="footer">
