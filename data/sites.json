@@ -1,1 +1,122 @@
-[]
+[
+  {
+    "id": 1,
+    "nome": "GitHub",
+    "url": "https://github.com",
+    "descri": "Plataforma colaborativa para versionamento de código e desenvolvimento de projetos",
+    "owner": "admin",
+    "createdAt": "2024-01-01T10:00:00Z",
+    "likes": 150,
+    "dislikes": 2,
+    "likedBy": [],
+    "dislikedBy": []
+  },
+  {
+    "id": 2,
+    "nome": "Stack Overflow",
+    "url": "https://stackoverflow.com",
+    "descri": "Comunidade Q&A para desenvolvedores encontrarem soluções e compartilharem conhecimento",
+    "owner": "admin",
+    "createdAt": "2024-01-02T10:00:00Z",
+    "likes": 120,
+    "dislikes": 1,
+    "likedBy": [],
+    "dislikedBy": []
+  },
+  {
+    "id": 3,
+    "nome": "MDN Web Docs",
+    "url": "https://developer.mozilla.org",
+    "descri": "Documentação abrangente sobre tecnologias web: HTML, CSS, JavaScript",
+    "owner": "admin",
+    "createdAt": "2024-01-03T10:00:00Z",
+    "likes": 135,
+    "dislikes": 0,
+    "likedBy": [],
+    "dislikedBy": []
+  },
+  {
+    "id": 4,
+    "nome": "CSS-Tricks",
+    "url": "https://css-tricks.com",
+    "descri": "Blog e recursos sobre CSS, design responsivo e desenvolvimento front-end",
+    "owner": "admin",
+    "createdAt": "2024-01-04T10:00:00Z",
+    "likes": 98,
+    "dislikes": 0,
+    "likedBy": [],
+    "dislikedBy": []
+  },
+  {
+    "id": 5,
+    "nome": "Node.js Documentation",
+    "url": "https://nodejs.org",
+    "descri": "Documentação oficial do Node.js para desenvolvimento backend com JavaScript",
+    "owner": "admin",
+    "createdAt": "2024-01-05T10:00:00Z",
+    "likes": 110,
+    "dislikes": 1,
+    "likedBy": [],
+    "dislikedBy": []
+  },
+  {
+    "id": 6,
+    "nome": "React Official",
+    "url": "https://react.dev",
+    "descri": "Documentação oficial da biblioteca React para construção de interfaces",
+    "owner": "admin",
+    "createdAt": "2024-01-06T10:00:00Z",
+    "likes": 125,
+    "dislikes": 0,
+    "likedBy": [],
+    "dislikedBy": []
+  },
+  {
+    "id": 7,
+    "nome": "Vue.js",
+    "url": "https://vuejs.org",
+    "descri": "Framework JavaScript progressivo para construir interfaces de usuário",
+    "owner": "admin",
+    "createdAt": "2024-01-07T10:00:00Z",
+    "likes": 87,
+    "dislikes": 1,
+    "likedBy": [],
+    "dislikedBy": []
+  },
+  {
+    "id": 8,
+    "nome": "Bootstrap",
+    "url": "https://getbootstrap.com",
+    "descri": "Framework CSS popular para desenvolvimento web responsivo e rápido",
+    "owner": "admin",
+    "createdAt": "2024-01-08T10:00:00Z",
+    "likes": 95,
+    "dislikes": 0,
+    "likedBy": [],
+    "dislikedBy": []
+  },
+  {
+    "id": 9,
+    "nome": "YouTube Developers",
+    "url": "https://developers.google.com/youtube",
+    "descri": "APIs e ferramentas para integrar YouTube em suas aplicações",
+    "owner": "admin",
+    "createdAt": "2024-01-09T10:00:00Z",
+    "likes": 76,
+    "dislikes": 2,
+    "likedBy": [],
+    "dislikedBy": []
+  },
+  {
+    "id": 10,
+    "nome": "Google Fonts",
+    "url": "https://fonts.google.com",
+    "descri": "Biblioteca de fontes gratuitas e open-source para web",
+    "owner": "admin",
+    "createdAt": "2024-01-10T10:00:00Z",
+    "likes": 82,
+    "dislikes": 0,
+    "likedBy": [],
+    "dislikedBy": []
+  }
+]
