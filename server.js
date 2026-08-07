@@ -70,7 +70,7 @@ function authMiddleware(req, res, next) {
 }
 
 app.get('/api/sites', (req, res) => {
-  const sites = readJSON(SITES_FILE)
+  const sites = readJSON(SITES_FILE).map(s => ({ ...s, views: s.views || 0 }))
   res.json(sites)
 })
 
@@ -88,7 +88,8 @@ app.post('/api/sites', authMiddleware, (req, res) => {
     likes: 0,
     dislikes: 0,
     likedBy: [],
-    dislikedBy: []
+    dislikedBy: [],
+    views: 0
   }
   sites.unshift(site)
   writeJSON(SITES_FILE, sites)
@@ -97,14 +98,14 @@ app.post('/api/sites', authMiddleware, (req, res) => {
 
 app.get('/api/sites/search', (req, res) => {
   const q = (req.query.q || '').toLowerCase()
-  const sites = readJSON(SITES_FILE)
+  const sites = readJSON(SITES_FILE).map(s => ({ ...s, views: s.views || 0 }))
   if (!q) return res.json(sites)
   const found = sites.filter(s => (s.nome || '').toLowerCase().includes(q) || (s.descri || '').toLowerCase().includes(q))
   res.json(found)
 })
 
 app.get('/api/sites/popular', (req, res) => {
-  const sites = readJSON(SITES_FILE)
+  const sites = readJSON(SITES_FILE).map(s => ({ ...s, views: s.views || 0 }))
   const sorted = sites.slice().sort((a, b) => (b.likes || 0) - (a.likes || 0))
   res.json(sorted.slice(0, 10))
 })
@@ -132,6 +133,17 @@ app.post('/api/sites/:id/like', authMiddleware, (req, res) => {
   }
   writeJSON(SITES_FILE, sites)
   res.json(site)
+})
+
+// Incrementar visualizações (público)
+app.post('/api/sites/:id/view', (req, res) => {
+  const id = Number(req.params.id)
+  const sites = readJSON(SITES_FILE)
+  const site = sites.find(s => s.id === id)
+  if (!site) return res.status(404).json({ error: 'site not found' })
+  site.views = (site.views || 0) + 1
+  writeJSON(SITES_FILE, sites)
+  res.json({ ok: true, id: site.id, views: site.views })
 })
 
 app.post('/api/sites/:id/dislike', authMiddleware, (req, res) => {

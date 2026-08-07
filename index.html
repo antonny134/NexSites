@@ -2,6 +2,7 @@
 <html lang="pt-br">
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -145,6 +146,9 @@
         .catalogo a:active{
             color: var(--green);
         }
+        .catalogo a.hidden{
+            display: none;
+        }
 
         /* ===== User status ===== */
         .user-status{
@@ -177,87 +181,185 @@
         /* ===== Hero / terminal window ===== */
         #tema-home{
             padding: 26px 20px 10px;
-        }
-        #tema-home a{
-            font-family: var(--display);
-            text-decoration: none;
-            color: var(--text);
-            cursor: pointer;
-            display: block;
-            max-width: 620px;
+            max-width: 1100px;
             margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ===== Hero logo banner ===== */
+        .hero-logo{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 12px;
+            padding: 64px 20px 54px;
+            margin-bottom: 34px;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
+            position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 60px -30px rgba(0,0,0,0.6);
-            transition: border-color 0.2s ease;
+            box-shadow: 0 30px 70px -40px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.02);
         }
-        #tema-home a:hover{
-            border-color: var(--green-dim);
-        }
-        #tema-home a::before{
+        .hero-logo::before{
             content: '';
-            display: block;
-            height: 34px;
-            background: var(--surface-2);
-            border-bottom: 1px solid var(--border);
-            background-image:
-                radial-gradient(circle 5px at 18px 17px, var(--red) 98%, transparent 100%),
-                radial-gradient(circle 5px at 38px 17px, var(--amber) 98%, transparent 100%),
-                radial-gradient(circle 5px at 58px 17px, var(--green) 98%, transparent 100%);
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 560px 280px at 50% 0%, rgba(61,220,132,0.16), transparent 70%),
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 26px),
+                repeating-linear-gradient(90deg, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px, transparent 1px, transparent 26px);
+            pointer-events: none;
         }
-        #tema-home a > span{
-            display: block;
-            padding: 22px 22px 20px;
-            font-size: 19px;
-            font-weight: 600;
+        .hero-logo::after{
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            width: 140px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+            transform: translateX(-50%);
+            opacity: 0.7;
         }
-        #tema-home a > span::before{
-            content: '$ nexsites --descobrir';
-            display: block;
-            font-family: var(--mono);
-            font-size: 12px;
-            font-weight: 400;
-            color: var(--text-faint);
-            margin-bottom: 8px;
-        }
-
-        #seguidos{ padding: 0 22px 22px; }
-        #perfis{
+        .hero-logo-mark{
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px;
-            background: var(--surface-2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            align-items: baseline;
+            gap: 2px;
+            font-family: var(--display);
+            font-size: 52px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            z-index: 1;
+            text-shadow: 0 0 40px rgba(61,220,132,0.18);
         }
-        #perfis #nome{
+        .hero-logo-mark::after{
+            content: '_';
+            color: var(--green);
+            animation: blink 1.1s steps(1) infinite;
+            margin-left: 2px;
+            font-family: var(--mono);
+        }
+        .hero-logo-mark .s1{ color: var(--text); }
+        .hero-logo-mark .s2{ color: var(--green); }
+        .hero-logo-sub{
             font-family: var(--mono);
             font-size: 13px;
-            color: var(--text-muted);
+            color: var(--text-faint);
+            z-index: 1;
+            letter-spacing: 0.01em;
         }
-        #perfis #nome::before{ content: 'carregando perfil…'; }
-        #seguir{
-            background: var(--green);
-            color: #06110b;
-            border: none;
-            padding: 7px 16px;
-            border-radius: 7px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        #seguidos p{
-            color: var(--text-muted);
-            font-family: var(--mono);
-            font-size: 13px;
-        }
-        .abrir{ max-height: 250px; transition: max-height 0.3s ease; }
-        .none{ max-height: 0; overflow: hidden; }
 
-        /* ===== Section headers ===== */
+        /* ===== Perfis / Seguir ===== */
+        .perfis-section{
+            margin-bottom: 30px;
+        }
+        .perfis-section h3{
+            font-family: var(--display);
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text);
+            padding: 4px 2px 14px;
+            border-bottom: 1px solid var(--border-soft);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .perfis-grid{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .perfil-card-mini{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            animation: rise 0.35s ease both;
+        }
+        .perfil-card-mini:hover{
+            border-color: var(--green-dim);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 34px -22px rgba(0,0,0,0.6);
+        }
+        .perfil-card-mini .mini-avatar{
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            color: #0b0f0c;
+            font-family: var(--display);
+            font-size: 17px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px -4px rgba(0,0,0,0.5);
+        }
+        .perfil-card-mini .mini-info{
+            flex: 1;
+            min-width: 0;
+        }
+        .perfil-card-mini .mini-nome{
+            color: var(--text);
+            font-family: var(--display);
+            font-size: 14px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .perfil-card-mini .mini-seguidores{
+            font-family: var(--mono);
+            font-size: 11.5px;
+            color: var(--text-faint);
+            margin-top: 2px;
+        }
+        .perfil-card-mini .mini-seguidores strong{
+            color: var(--amber);
+            font-weight: 600;
+        }
+        .seguir-btn{
+            font-family: var(--body-font);
+            font-weight: 600;
+            font-size: 12px;
+            border-radius: 8px;
+            padding: 7px 12px;
+            cursor: pointer;
+            border: 1px solid rgba(61,220,132,0.3);
+            background: rgba(61,220,132,0.1);
+            color: var(--green);
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+        .seguir-btn:hover{ background: rgba(61,220,132,0.18); transform: translateY(-1px); }
+        .seguir-btn:active{ transform: translateY(0); }
+        .seguir-btn.seguindo{
+            background: var(--surface-2);
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+        .seguir-btn.seguindo:hover{
+            background: rgba(255,107,107,0.08);
+            color: var(--red);
+            border-color: rgba(255,107,107,0.25);
+        }
+        .seguir-btn.voce-mesmo{
+            background: var(--surface-2);
+            color: var(--text-faint);
+            border-color: var(--border);
+            cursor: default;
+        }
+        .seguir-btn.voce-mesmo:hover{ background: var(--surface-2); }
+
+        /* ===== Listagem de sites ===== */
         .home{
             padding: 6px 20px 40px;
             max-width: 1100px;
@@ -272,8 +374,6 @@
             border-bottom: 1px solid var(--border-soft);
             color: var(--text);
         }
-
-        /* ===== Site cards (browser-window motif) ===== */
         .sites{
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -288,8 +388,9 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: border-color 0.2s ease, transform 0.2s ease;
+            transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
             animation: rise 0.35s ease both;
+            position: relative;
         }
         @keyframes rise{
             from{ opacity: 0; transform: translateY(6px); }
@@ -297,7 +398,8 @@
         }
         .product-card:hover{
             border-color: var(--green-dim);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 18px 40px -24px rgba(0,0,0,0.65);
         }
         .card-chrome{
             display: flex;
@@ -347,6 +449,7 @@
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
             font-family: var(--display);
+            box-shadow: 0 3px 10px -3px rgba(61,220,132,0.5);
         }
         .product-card a{
             color: var(--green);
@@ -369,6 +472,16 @@
             color: var(--text-faint);
             font-family: var(--mono);
             margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .card-views{
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--amber);
         }
         .card-actions{
             margin-top: 10px;
@@ -390,13 +503,125 @@
             color: var(--green);
             border-color: rgba(61,220,132,0.25);
         }
-        .like-btn:hover{ background: rgba(61,220,132,0.18); }
+        .like-btn:hover{ background: rgba(61,220,132,0.18); transform: translateY(-1px); }
         .dislike-btn{
             background: rgba(255,107,107,0.08);
             color: var(--red);
             border-color: rgba(255,107,107,0.2);
         }
-        .dislike-btn:hover{ background: rgba(255,107,107,0.16); }
+        .dislike-btn:hover{ background: rgba(255,107,107,0.16); transform: translateY(-1px); }
+        .comments-btn{
+            font-family: var(--body-font);
+            font-weight: 600;
+            font-size: 12.5px;
+            border-radius: 8px;
+            padding: 7px 12px;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--surface-2);
+            color: var(--text-muted);
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .comments-btn:hover{ color: var(--text); border-color: var(--green-dim); }
+
+        /* ===== Comments panel (inside card) ===== */
+        .comments-panel{
+            margin-top: 12px;
+            border-top: 1px solid var(--border-soft);
+            padding-top: 12px;
+        }
+        .comments-list{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+        .comment-item{
+            background: var(--surface-2);
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+        .comment-header{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            gap: 8px;
+        }
+        .comment-author{
+            font-family: var(--display);
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .comment-date{
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--text-faint);
+            flex-shrink: 0;
+        }
+        .comment-text{
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        .comment-reply{
+            margin-top: 8px;
+            padding: 8px 10px;
+            background: rgba(61,220,132,0.06);
+            border-left: 2px solid var(--green-dim);
+            border-radius: 6px;
+        }
+        .comment-reply-header{
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--green);
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .comment-reply p{
+            font-size: 12.5px;
+            color: var(--text-muted);
+        }
+        .comment-form{
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .comment-form textarea{
+            width: 100%;
+            min-height: 60px;
+            resize: vertical;
+            padding: 10px 12px;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: var(--body-font);
+            font-size: 13px;
+        }
+        .comment-form textarea:focus{ border-color: var(--green-dim); }
+        .comment-form button{
+            align-self: flex-end;
+            padding: 7px 16px;
+            background: var(--green);
+            color: #06110b;
+            border: none;
+            border-radius: 7px;
+            font-weight: 600;
+            font-size: 12.5px;
+            cursor: pointer;
+            transition: filter 0.15s ease;
+        }
+        .comment-form button:hover{ filter: brightness(1.08); }
 
         .empty-state{
             grid-column: 1/-1;
@@ -637,6 +862,234 @@
             color: var(--text-faint);
         }
 
+        /* ===== Perfil ===== */
+        .perfil-wrap{
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 6px 20px 40px;
+            width: 100%;
+        }
+        .perfil-header{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 24px 0 18px;
+        }
+        .perfil-avatar{
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            color: #0b0f0c;
+            font-family: var(--display);
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 6px 18px -6px rgba(0,0,0,0.55);
+        }
+        .perfil-header h3{
+            font-family: var(--display);
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .perfil-header p{
+            font-family: var(--mono);
+            font-size: 12.5px;
+            color: var(--text-faint);
+            margin-top: 3px;
+        }
+        .perfil-stats{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            padding-bottom: 22px;
+        }
+        .stat-card{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+        .stat-card .stat-num{
+            font-family: var(--display);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--green);
+        }
+        .stat-card .stat-label{
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-faint);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-top: 4px;
+        }
+        .perfil-wrap h4{
+            font-family: var(--display);
+            font-size: 16px;
+            font-weight: 600;
+            padding: 4px 2px 14px;
+            border-bottom: 1px solid var(--border-soft);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ranking-list{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 16px 0 0;
+        }
+        .ranking-item{
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            transition: border-color 0.2s ease;
+        }
+        .ranking-item:hover{ border-color: var(--green-dim); }
+        .ranking-pos{
+            font-family: var(--display);
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-faint);
+            width: 24px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .ranking-pos.top1{ color: var(--green); }
+        .ranking-info{ flex: 1; min-width: 0; }
+        .ranking-info .r-nome{
+            color: var(--text);
+            font-family: var(--display);
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .ranking-info .r-url{
+            color: var(--text-faint);
+            font-family: var(--mono);
+            font-size: 11.5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+        }
+        .ranking-views{
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--amber);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        /* ===== Perfil - Comentários ===== */
+        .perfil-comments-list{
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 16px 0 0;
+        }
+        .perfil-comment-card{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+        .perfil-comment-meta{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .pc-site{
+            font-family: var(--display);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--green);
+        }
+        .pc-author{
+            font-family: var(--mono);
+            font-size: 11.5px;
+            color: var(--text-faint);
+        }
+        .pc-date{
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-faint);
+            margin-left: auto;
+        }
+        .perfil-comment-text{
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .reply-badge{
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--green);
+            margin-bottom: 8px;
+        }
+        .reply-form{
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .reply-form textarea{
+            width: 100%;
+            min-height: 56px;
+            resize: vertical;
+            padding: 10px 12px;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: var(--body-font);
+            font-size: 13px;
+        }
+        .reply-form textarea:focus{ border-color: var(--green-dim); }
+        .reply-form button{
+            align-self: flex-end;
+            padding: 7px 16px;
+            background: rgba(61,220,132,0.12);
+            color: var(--green);
+            border: 1px solid rgba(61,220,132,0.3);
+            border-radius: 7px;
+            font-weight: 600;
+            font-size: 12.5px;
+            cursor: pointer;
+        }
+        .reply-form button:hover{ background: rgba(61,220,132,0.2); }
+
+        /* ===== Sync badge ===== */
+        .sync-badge{
+            font-family: var(--mono);
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-faint);
+        }
+        .sync-badge.on{ color: var(--green); border-color: rgba(61,220,132,0.3); background: rgba(61,220,132,0.08); }
+        .sync-badge.off{ color: var(--amber); border-color: rgba(255,180,84,0.3); background: rgba(255,180,84,0.08); }
+        .sync-badge .dot{ width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
         /* ===== Footer ===== */
         footer{
             margin-top: 40px;
@@ -659,13 +1112,16 @@
             .catalogo{ overflow-x: auto; max-width: 100%; margin: auto; display: flex;}
             .catalogo a{ padding: 7px 9px; }
             .sites{ grid-template-columns: 1fr; }
+            .perfis-grid{ grid-template-columns: 1fr; }
+            .hero-logo{ padding: 46px 16px 40px; }
+            .hero-logo-mark{ font-size: 38px; }
         }
     </style>
 </head>
 <body>
     <!-- Logo -->
     <nav class="logo">
-     <div class="logo1">
+     <div class="logo1" id="logoHome" style="cursor:pointer;">
         <h3 class="s1">Nex</h3>
         <h3 class="s2">Sites</h3>
         <!-- Catalogo -->
@@ -695,37 +1151,369 @@
                 <i class="bi bi-folder2-open"></i>
                 <span>Meus Sites</span>
             </a>
+            <a href="#" id="perfilBtn" class="hidden">
+                <i class="bi bi-person-circle"></i>
+                <span>Perfil</span>
+            </a>
+         </div>
+         <div class="sync-badge off" id="syncBadge" title="Clique para ver detalhes / tentar novamente" style="cursor:pointer;">
+            <span class="dot"></span> verificando...
+         </div>
+         <div class="sync-badge on" id="onlineBadge" style="display:none;">
+            <span class="dot"></span> 0 online agora
          </div>
     </nav>
     <!-- Tela -->
      <nav id="tela">
         <div id="tema-home">
-            <!-- Quem somos -->
-             <a href="#" id="somos">
-                <span>Os perfis mais seguidos</span>
-                <div id="seguidos"></div>
-             </a>
+            <div class="hero-logo">
+                <div class="hero-logo-mark">
+                    <span class="s1">Nex</span><span class="s2">Sites</span>
+                </div>
+                <p class="hero-logo-sub">$ publique, descubra e siga sites feitos por outras pessoas</p>
+            </div>
         </div>
      </nav>
      <script>
-var seguidores = 10
-
-const seguidos = document.getElementById("seguidos")
-const temahome = document.getElementById("tema-home")
-const somos = document.getElementById("somos")
 const tela = document.getElementById("tela")
 const criar = document.getElementById("criar")
 const meusites = document.getElementById("meusites")
 const procuraBtn = document.getElementById("procurar")
 const loginBtn = document.getElementById("loginBtn")
 const cadastroBtn = document.getElementById("cadastro")
+const perfilBtn = document.getElementById("perfilBtn")
 const cata = document.getElementById("cata")
 
 let historico = JSON.parse(localStorage.getItem('nex_historico') || '[]')
 let usuarios = JSON.parse(localStorage.getItem('nex_usuarios') || '[]')
+let comentarios = JSON.parse(localStorage.getItem('nex_comentarios') || '[]')
+let seguidoresList = JSON.parse(localStorage.getItem('nex_seguidores') || '[]')
 let token = localStorage.getItem('nex_token') || null
 let username = localStorage.getItem('nex_user') || null
 let hasServer = false
+
+/* =========================================================
+   ARMAZENAMENTO COMPARTILHADO (jsonstorage.net)
+   -----------------------------------------------------------
+   Sem servidor próprio, o localStorage sozinho NUNCA mostra
+   sites de outras pessoas (cada navegador só vê o que ele
+   mesmo salvou). Para os sites publicados por qualquer
+   usuário aparecerem para todo mundo, usamos um "bin" JSON
+   gratuito no jsonstorage.net como banco de dados compartilhado.
+
+   COMO ATIVAR (uma única vez):
+   1) Abra este arquivo no navegador.
+   2) Se CLOUD_BIN_ID estiver vazio, o app cria um bin
+      automaticamente na primeira execução e mostra um alerta
+      com o ID gerado (também aparece no console - F12).
+   3) Copie esse ID e cole aqui embaixo, na constante
+      CLOUD_BIN_ID, substituindo a string vazia.
+   4) Salve o arquivo. A partir daí, TODOS que abrirem essa
+      cópia do arquivo (com o ID já preenchido) vão
+      compartilhar a mesma lista de sites.
+
+   Limites do plano grátis: ~1000 requisições/mês e 64kb por
+   item. Para um projeto em produção com muito tráfego, o
+   ideal seria migrar para Firebase/Supabase.
+   ========================================================= */
+const CLOUD_BIN_ID = '' // <-- cole aqui o ID gerado (ex: "9f3a.../xxxxxxxx")
+const CLOUD_API = 'https://api.jsonstorage.net/v1/json'
+let cloudReady = false
+let cloudSyncTimer = null
+let cloudStatusMsg = 'Ainda não verificado.'
+
+async function cloudGetSites() {
+    const res = await fetch(`${CLOUD_API}/${CLOUD_BIN_ID}`)
+    if (!res.ok) throw new Error('cloud fetch failed')
+    return await res.json()
+}
+
+async function cloudSaveSites(sites) {
+    if (!CLOUD_BIN_ID) return
+    await fetch(`${CLOUD_API}/${CLOUD_BIN_ID}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sites })
+    })
+}
+
+function scheduleCloudSync() {
+    if (!cloudReady) return
+    clearTimeout(cloudSyncTimer)
+    cloudSyncTimer = setTimeout(() => {
+        cloudSaveSites(historico).catch(() => {
+            console.warn('Não foi possível sincronizar com o armazenamento compartilhado agora.')
+        })
+    }, 900)
+}
+
+function mostrarAvisoBin(novoId) {
+    console.log('%c[NexSites] Bin compartilhado criado! Copie este ID para CLOUD_BIN_ID no código:\n' + novoId, 'color:#3ddc84;font-weight:bold;font-size:13px;')
+    alert(
+        'Armazenamento compartilhado criado com sucesso!\n\n' +
+        'Para que TODOS os visitantes vejam os mesmos sites publicados, copie o ID abaixo e cole na constante CLOUD_BIN_ID no topo do <script> (e salve o arquivo):\n\n' +
+        novoId +
+        '\n\n(Este ID também foi impresso no console do navegador - F12)'
+    )
+}
+
+async function initCloudSync() {
+    if (CLOUD_BIN_ID) {
+        cloudStatusMsg = 'Conectando ao armazenamento compartilhado...'
+        atualizarSyncBadge()
+        try {
+            const data = await cloudGetSites()
+            if (data && Array.isArray(data.sites)) {
+                historico = data.sites
+                normalizeSiteIds(historico)
+                localStorage.setItem('nex_historico', JSON.stringify(historico))
+            }
+            cloudReady = true
+            cloudStatusMsg = 'Conectado! Os sites publicados por qualquer pessoa aparecem aqui.'
+        } catch (e) {
+            cloudReady = false
+            cloudStatusMsg = 'Falha ao conectar no bin compartilhado (ID: ' + CLOUD_BIN_ID + ').\nErro: ' + (e && e.message ? e.message : e) +
+                '\n\nPossíveis causas: sem internet, ID errado/apagado, ou bloqueio de CORS ao abrir o arquivo direto do disco (tente rodar via um servidor local, ex: "python -m http.server", em vez de dar duplo-clique no arquivo).'
+            console.warn('[NexSites] ' + cloudStatusMsg, e)
+        }
+    } else {
+        cloudStatusMsg = 'Criando armazenamento compartilhado pela primeira vez...'
+        atualizarSyncBadge()
+        try {
+            const res = await fetch(CLOUD_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sites: historico })
+            })
+            if (!res.ok) throw new Error('HTTP ' + res.status + ' ao criar o bin')
+            const data = await res.json()
+            const match = data.uri && data.uri.match(/\/v1\/json\/(.+)$/)
+            const novoId = match ? match[1] : null
+            if (novoId) {
+                cloudStatusMsg = 'Bin criado! Copie este ID para a constante CLOUD_BIN_ID no código e salve o arquivo:\n\n' + novoId
+                mostrarAvisoBin(novoId)
+            } else {
+                cloudStatusMsg = 'O bin foi criado mas a resposta veio num formato inesperado: ' + JSON.stringify(data)
+            }
+        } catch (e) {
+            cloudStatusMsg = 'Não foi possível criar o armazenamento compartilhado.\nErro: ' + (e && e.message ? e.message : e) +
+                '\n\nIsso costuma acontecer quando o arquivo é aberto direto do disco (file://) e o navegador bloqueia a requisição por CORS. ' +
+                'Tente: 1) rodar um servidor local (ex: "python -m http.server" na pasta do arquivo e abrir http://localhost:8000/nexsites.html), ' +
+                'ou 2) hospedar o arquivo em algo como Netlify/GitHub Pages, ou 3) abrir o Console (F12) e ver o erro exato de rede.'
+            console.warn('[NexSites] ' + cloudStatusMsg, e)
+        }
+        cloudReady = false
+    }
+    atualizarSyncBadge()
+}
+
+function atualizarSyncBadge() {
+    const badge = document.getElementById('syncBadge')
+    if (!badge) return
+    if (cloudReady) {
+        badge.className = 'sync-badge on'
+        badge.innerHTML = '<span class="dot"></span> sites compartilhados'
+    } else {
+        badge.className = 'sync-badge off'
+        badge.innerHTML = '<span class="dot"></span> modo local (clique p/ detalhes)'
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const badge = document.getElementById('syncBadge')
+    if (badge) {
+        badge.addEventListener('click', async () => {
+            if (cloudReady) {
+                alert('Status: ' + cloudStatusMsg)
+                return
+            }
+            const querTentar = confirm((cloudStatusMsg || 'Ainda não verificado.') + '\n\nDeseja tentar conectar/criar o armazenamento compartilhado agora?')
+            if (querTentar) {
+                badge.innerHTML = '<span class="dot"></span> tentando...'
+                await initCloudSync()
+            }
+        })
+    }
+})
+
+/* =========================================================
+   TEMPO REAL ENTRE PESSOAS LOGADAS (PeerJS / WebRTC)
+   -----------------------------------------------------------
+   Quando alguém logado publica, curte, descurte ou visualiza
+   um site, as outras pessoas logadas NESSE MOMENTO recebem a
+   atualização instantaneamente, sem precisar recarregar a
+   página. Funciona com uma "sala" de ID fixo: a primeira
+   pessoa logada que entra vira o hub (retransmissor), as
+   demais se conectam nela. Se o hub sair, a próxima pessoa
+   conectada assume o papel automaticamente.
+
+   Isso é só para atualização em tempo real enquanto as
+   pessoas estão com a aba aberta ao mesmo tempo; a
+   persistência entre sessões continua sendo o armazenamento
+   compartilhado (jsonstorage.net) configurado acima.
+   ========================================================= */
+const HUB_ID = 'nexsites-hub-v1'
+let peer = null
+let isHub = false
+let hubConn = null
+let clientConns = {}
+let onlineUsers = {}
+let reconnectTimer = null
+let currentView = 'inicial'
+
+function broadcastToClients(msg, exceptPeerId) {
+    Object.keys(clientConns).forEach(pid => {
+        if (pid === exceptPeerId) return
+        const conn = clientConns[pid]
+        if (conn && conn.open) {
+            try { conn.send(msg) } catch (e) {}
+        }
+    })
+}
+
+function broadcastRealtime(msg) {
+    if (isHub) {
+        broadcastToClients(msg)
+    } else if (hubConn && hubConn.open) {
+        try { hubConn.send(msg) } catch (e) {}
+    }
+}
+
+function mergeSiteIntoHistorico(site) {
+    if (!site || !site.id) return
+    const idx = historico.findIndex(s => String(s.id) === String(site.id))
+    if (idx !== -1) historico[idx] = site
+    else historico.unshift(site)
+    localStorage.setItem('nex_historico', JSON.stringify(historico))
+    refreshCurrentSitesView()
+}
+
+function refreshCurrentSitesView() {
+    if (currentView === 'home' && homeBtn) homeBtn.click()
+    else if (currentView === 'meusites' && meusites) meusites.click()
+}
+
+function atualizarOnlineBadge() {
+    const badge = document.getElementById('onlineBadge')
+    if (!badge) return
+    const nomes = Object.values(onlineUsers)
+    const total = nomes.length
+    if (total > 0) {
+        badge.style.display = 'flex'
+        badge.title = nomes.join(', ')
+        badge.innerHTML = '<span class="dot"></span> ' + total + ' online agora'
+    } else {
+        badge.style.display = 'none'
+    }
+}
+
+function broadcastPresence() {
+    broadcastToClients({ type: 'presence_update', users: Object.assign({}, onlineUsers) })
+    atualizarOnlineBadge()
+}
+
+function handleIncomingData(conn, data) {
+    if (!data || !data.type) return
+    if (data.type === 'login') {
+        onlineUsers[conn.peer] = data.username
+        if (isHub) broadcastPresence()
+    } else if (data.type === 'presence_update') {
+        onlineUsers = data.users || {}
+        if (username && peer) onlineUsers[peer.id] = username
+        atualizarOnlineBadge()
+    } else if (data.type === 'novo_site' || data.type === 'site_update') {
+        mergeSiteIntoHistorico(data.site)
+        if (isHub) broadcastToClients(data, conn.peer)
+    }
+}
+
+function setupHub() {
+    isHub = true
+    clientConns = {}
+    peer.on('connection', (conn) => {
+        clientConns[conn.peer] = conn
+        conn.on('data', (data) => handleIncomingData(conn, data))
+        conn.on('close', () => {
+            delete clientConns[conn.peer]
+            delete onlineUsers[conn.peer]
+            broadcastPresence()
+        })
+    })
+    if (username) {
+        onlineUsers[peer.id] = username
+        atualizarOnlineBadge()
+    }
+}
+
+function setupClient() {
+    isHub = false
+    hubConn = peer.connect(HUB_ID, { reliable: true })
+    hubConn.on('open', () => {
+        if (username) hubConn.send({ type: 'login', username })
+    })
+    hubConn.on('data', (data) => handleIncomingData(hubConn, data))
+    hubConn.on('close', () => {
+        atualizarOnlineBadge()
+        agendarReconexao()
+    })
+    hubConn.on('error', () => {
+        agendarReconexao()
+    })
+}
+
+function agendarReconexao() {
+    clearTimeout(reconnectTimer)
+    reconnectTimer = setTimeout(() => {
+        if (token && username) startRealtime()
+    }, 4000)
+}
+
+function startRealtime() {
+    if (!token || !username) return
+    if (peer && !peer.destroyed) return // já conectado/conectando
+
+    if (typeof Peer === 'undefined') {
+        console.warn('[NexSites] PeerJS não carregou; recursos em tempo real desativados (sem internet ou CDN bloqueado).')
+        return
+    }
+
+    try {
+        peer = new Peer(HUB_ID)
+    } catch (e) {
+        console.warn('[NexSites] Não foi possível iniciar o tempo real.', e)
+        return
+    }
+
+    peer.on('open', () => {
+        setupHub()
+    })
+
+    peer.on('error', (err) => {
+        if (err && err.type === 'unavailable-id') {
+            // já existe alguém como hub, conecta como cliente
+            try { peer.destroy() } catch (e) {}
+            peer = new Peer()
+            peer.on('open', () => setupClient())
+            peer.on('error', () => agendarReconexao())
+        } else {
+            console.warn('[NexSites] Erro de conexão em tempo real:', err)
+            agendarReconexao()
+        }
+    })
+}
+
+function stopRealtime() {
+    clearTimeout(reconnectTimer)
+    Object.values(clientConns).forEach(c => { try { c.close() } catch (e) {} })
+    clientConns = {}
+    if (hubConn) { try { hubConn.close() } catch (e) {} }
+    hubConn = null
+    if (peer) { try { peer.destroy() } catch (e) {} }
+    peer = null
+    isHub = false
+    onlineUsers = {}
+    atualizarOnlineBadge()
+}
 
 function normalizeSiteIds(sites) {
     if (!Array.isArray(sites)) return false
@@ -736,6 +1524,10 @@ function normalizeSiteIds(sites) {
             site.id = 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8)
             changed = true
         }
+        if (typeof site.views !== 'number') {
+            site.views = 0
+            changed = true
+        }
     })
     return changed
 }
@@ -743,24 +1535,108 @@ function normalizeSiteIds(sites) {
 if (normalizeSiteIds(historico)) {
     saveLocal()
 }
- // tema-menu
+function saveSeguidores() {
+    localStorage.setItem('nex_seguidores', JSON.stringify(seguidoresList))
+}
 
-    temahome.addEventListener("click", function () {
-    somos.classList.toggle("abrir");
+function contarSeguidores(nomeUsuario) {
+    return seguidoresList.filter(s => s.seguido.toLowerCase() === nomeUsuario.toLowerCase()).length
+}
 
-    if (seguidores >= 0) {
-        seguidos.innerHTML = `
-            <div id="perfis">
-                <p id="nome"></p>
-                <button id="seguir">Seguir</button>
-            </div>
-        `;
-    } else {
-        alert("oi")
-        somos.style.height = '125px' 
-        seguidos.innerHTML = '<p>Niguém tem mais de 10 iscritos</p>'
+function estaSeguindo(seguidor, seguido) {
+    return seguidoresList.some(s => s.seguidor.toLowerCase() === seguidor.toLowerCase() && s.seguido.toLowerCase() === seguido.toLowerCase())
+}
+
+function toggleSeguir(nomeAlvo) {
+    if (!token || !username) {
+        alert('Faça login para seguir outros perfis')
+        return
     }
-});
+    if (username.toLowerCase() === nomeAlvo.toLowerCase()) return
+
+    if (estaSeguindo(username, nomeAlvo)) {
+        seguidoresList = seguidoresList.filter(s => !(s.seguidor.toLowerCase() === username.toLowerCase() && s.seguido.toLowerCase() === nomeAlvo.toLowerCase()))
+    } else {
+        seguidoresList.push({ seguidor: username, seguido: nomeAlvo, createdAt: new Date().toISOString() })
+    }
+    saveSeguidores()
+    renderPerfis()
+}
+
+function renderPerfilCardMini(nomeUsuario) {
+    const inicial = (nomeUsuario || '?').trim().charAt(0).toUpperCase() || '?'
+    const totalSeguidores = contarSeguidores(nomeUsuario)
+    const souEu = token && username && username.toLowerCase() === nomeUsuario.toLowerCase()
+    const jaSigo = token && username && estaSeguindo(username, nomeUsuario)
+
+    let botaoHtml
+    if (souEu) {
+        botaoHtml = `<button class="seguir-btn voce-mesmo" disabled>Você</button>`
+    } else if (jaSigo) {
+        botaoHtml = `<button class="seguir-btn seguindo" data-seguir="${escapeHTML(nomeUsuario)}">Seguindo</button>`
+    } else {
+        botaoHtml = `<button class="seguir-btn" data-seguir="${escapeHTML(nomeUsuario)}">Seguir</button>`
+    }
+
+    return `
+        <div class="perfil-card-mini">
+            <div class="mini-avatar" style="background:${corAvatar(nomeUsuario)}">${escapeHTML(inicial)}</div>
+            <div class="mini-info">
+                <div class="mini-nome">${escapeHTML(nomeUsuario)}</div>
+                <div class="mini-seguidores"><strong>${totalSeguidores}</strong> seguidor${totalSeguidores === 1 ? '' : 'es'}</div>
+            </div>
+            ${botaoHtml}
+        </div>
+    `
+}
+
+function attachSeguirHandlers() {
+    document.querySelectorAll('[data-seguir]').forEach(btn => {
+        btn.removeEventListener('click', btn.seguirHandler)
+        btn.seguirHandler = () => toggleSeguir(btn.getAttribute('data-seguir'))
+        btn.addEventListener('click', btn.seguirHandler)
+    })
+}
+
+function mostrarTelaInicial() {
+    currentView = 'inicial'
+    tela.innerHTML = `
+        <div id="tema-home">
+            <div class="hero-logo">
+                <div class="hero-logo-mark">
+                    <span class="s1">Nex</span><span class="s2">Sites</span>
+                </div>
+                <p class="hero-logo-sub">$ publique, descubra e siga sites feitos por outras pessoas</p>
+            </div>
+        </div>
+    `
+    renderPerfis()
+}
+
+const logoHome = document.getElementById('logoHome')
+if (logoHome) {
+    logoHome.addEventListener('click', (e) => {
+        e.preventDefault()
+        mostrarTelaInicial()
+    })
+}
+
+function renderPerfis() {
+    const gridComunidade = document.getElementById('perfisComunidade')
+    if (!gridComunidade) return
+
+    if (!usuarios.length) {
+        gridComunidade.innerHTML = '<p class="empty-state">Ainda não há perfis cadastrados.</p>'
+        return
+    }
+
+    const nomes = usuarios.map(u => u.username)
+        .sort((a, b) => contarSeguidores(b) - contarSeguidores(a))
+
+    gridComunidade.innerHTML = nomes.map(renderPerfilCardMini).join('')
+
+    attachSeguirHandlers()
+}
 
 async function tryDetectServer() {
     try {
@@ -774,10 +1650,21 @@ async function tryDetectServer() {
 
 function saveLocal() {
     localStorage.setItem('nex_historico', JSON.stringify(historico))
+    scheduleCloudSync()
 }
 
 function saveUsuarios() {
     localStorage.setItem('nex_usuarios', JSON.stringify(usuarios))
+}
+
+function saveComentarios() {
+    localStorage.setItem('nex_comentarios', JSON.stringify(comentarios))
+}
+
+function getSiteComments(siteId) {
+    return comentarios
+        .filter(c => String(c.siteId) === String(siteId))
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 }
 
 function hashSenha(senha) {
@@ -823,6 +1710,17 @@ function escapeHTML(str) {
         .replace(/'/g, '&#39;')
 }
 
+function corAvatar(nome) {
+    const str = (nome || '?').toLowerCase()
+    let hash = 0
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash * 31 + str.charCodeAt(i)) >>> 0
+    }
+    const matiz = hash % 360
+    const matiz2 = (matiz + 38) % 360
+    return `linear-gradient(135deg, hsl(${matiz} 72% 58%), hsl(${matiz2} 62% 42%))`
+}
+
 function getDomain(url) {
     try {
         return new URL(url).hostname.replace(/^www\./, '')
@@ -835,7 +1733,14 @@ function updateUserStatus() {
     // Limpar status anterior
     const oldStatus = document.querySelector('.user-status')
     if (oldStatus) oldStatus.remove()
-    
+
+    // Mostrar/ocultar o botão de Perfil de acordo com o login
+    if (token && username) {
+        perfilBtn.classList.remove('hidden')
+    } else {
+        perfilBtn.classList.add('hidden')
+    }
+
     if (token && username) {
         // Inserir status de usuário logado
         const catalogo = document.querySelector('.catalogo')
@@ -848,12 +1753,14 @@ function updateUserStatus() {
         catalogo.parentElement.insertBefore(statusDiv, catalogo)
         
         document.getElementById('logoutBtn').addEventListener('click', () => {
+            stopRealtime()
             token = null
             username = null
             localStorage.removeItem('nex_token')
             localStorage.removeItem('nex_user')
             updateUserStatus()
             loadAndShowSites()
+            renderPerfis()
         })
     }
 }
@@ -875,13 +1782,18 @@ function renderSitesHTML(sitesArray, containerId) {
                 </div>
                 <div class="card-body">
                     <h2><span class="card-favicon">${escapeHTML(initial)}</span>${escapeHTML(site.nome)}</h2>
-                    <a href="${escapeHTML(site.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(site.url)}</a>
+                    <a href="${escapeHTML(site.url)}" target="_blank" rel="noopener noreferrer" class="site-link" data-id="${escapeHTML(stableId)}">${escapeHTML(site.url)}</a>
                     <p>${escapeHTML(site.descri || '')}</p>
-                    <div class="card-meta">enviado por ${escapeHTML(site.owner || 'local')} · ${site.createdAt ? escapeHTML(site.createdAt.split('T')[0]) : ''}</div>
+                    <div class="card-meta">
+                        <span class="card-views"><i class="bi bi-eye"></i> ${site.views || 0} visualizações</span>
+                        <span>enviado por ${escapeHTML(site.owner || 'local')} · ${site.createdAt ? escapeHTML(site.createdAt.split('T')[0]) : ''}</span>
+                    </div>
                     <div class="card-actions">
                         <button class="like-btn" data-id="${escapeHTML(stableId)}">👍 ${site.likes || 0}</button>
                         <button class="dislike-btn" data-id="${escapeHTML(stableId)}">👎 ${site.dislikes || 0}</button>
+                        <button class="comments-btn" data-id="${escapeHTML(stableId)}"><i class="bi bi-chat-dots"></i> Comentários (${getSiteComments(stableId).length})</button>
                     </div>
+                    <div class="comments-panel" id="comments-panel-${escapeHTML(stableId)}" style="display:none;"></div>
                 </div>
             </div>
         `
@@ -889,7 +1801,150 @@ function renderSitesHTML(sitesArray, containerId) {
     return html
 }
 
+function renderComentariosPanelHTML(siteId) {
+    const lista = getSiteComments(siteId)
+    let itemsHtml = ''
+    if (lista.length === 0) {
+        itemsHtml = '<p class="empty-state" style="padding:14px;">Nenhum comentário ainda. Seja o primeiro a opinar!</p>'
+    } else {
+        itemsHtml = '<div class="comments-list">' + lista.map(c => `
+            <div class="comment-item">
+                <div class="comment-header">
+                    <span class="comment-author">${escapeHTML(c.author)}</span>
+                    <span class="comment-date">${c.createdAt ? escapeHTML(c.createdAt.split('T')[0]) : ''}</span>
+                </div>
+                <p class="comment-text">${escapeHTML(c.texto)}</p>
+                ${c.resposta ? `
+                <div class="comment-reply">
+                    <div class="comment-reply-header"><i class="bi bi-reply-fill"></i> Resposta do criador</div>
+                    <p>${escapeHTML(c.resposta.texto)}</p>
+                </div>` : ''}
+            </div>
+        `).join('') + '</div>'
+    }
+
+    const formHtml = (token && username)
+        ? `<form class="comment-form" data-site-id="${escapeHTML(siteId)}">
+               <textarea placeholder="Deixe sua opinião sobre esse site..." required></textarea>
+               <button type="submit">Comentar</button>
+           </form>`
+        : `<p class="empty-state" style="padding:10px;">Faça login para comentar.</p>`
+
+    return itemsHtml + formHtml
+}
+
+function updateCommentsBtnCount(siteId) {
+    const btn = document.querySelector(`.comments-btn[data-id="${CSS.escape(String(siteId))}"]`)
+    if (btn) {
+        btn.innerHTML = `<i class="bi bi-chat-dots"></i> Comentários (${getSiteComments(siteId).length})`
+    }
+}
+
+function attachCommentFormHandler(container, siteId) {
+    const form = container.querySelector('.comment-form')
+    if (!form) return
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const textarea = form.querySelector('textarea')
+        const texto = textarea.value.trim()
+        if (!texto) return
+        if (!token || !username) {
+            alert('Faça login para comentar')
+            return
+        }
+
+        if (hasServer) {
+            try {
+                await fetch(`/api/sites/${siteId}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ texto })
+                })
+                container.innerHTML = renderComentariosPanelHTML(siteId)
+                attachCommentFormHandler(container, siteId)
+                updateCommentsBtnCount(siteId)
+                return
+            } catch (err) { hasServer = false }
+        }
+
+        const novoComentario = {
+            id: 'com_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+            siteId,
+            author: username,
+            texto,
+            resposta: null,
+            createdAt: new Date().toISOString()
+        }
+        comentarios.push(novoComentario)
+        saveComentarios()
+        container.innerHTML = renderComentariosPanelHTML(siteId)
+        attachCommentFormHandler(container, siteId)
+        updateCommentsBtnCount(siteId)
+    })
+}
+
+function attachCommentHandlers() {
+    document.querySelectorAll('.comments-btn').forEach(btn => {
+        btn.removeEventListener('click', btn.toggleHandler)
+        btn.toggleHandler = () => {
+            const id = btn.getAttribute('data-id')
+            const panel = document.getElementById('comments-panel-' + id)
+            if (!panel) return
+            const isOpen = panel.style.display !== 'none'
+
+            // Fecha os comentários de todos os outros sites antes de abrir/alternar este
+            document.querySelectorAll('.comments-panel').forEach(p => {
+                if (p !== panel) p.style.display = 'none'
+            })
+
+            if (isOpen) {
+                panel.style.display = 'none'
+                return
+            }
+            panel.innerHTML = renderComentariosPanelHTML(id)
+            panel.style.display = 'block'
+            attachCommentFormHandler(panel, id)
+        }
+        btn.addEventListener('click', btn.toggleHandler)
+    })
+}
+
+function registrarVisualizacao(id) {
+    if (hasServer) {
+        fetch(`/api/sites/${id}/view`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data && (data.views != null)) {
+                    const idx = historico.findIndex(s => String(s.id) === String(id) || String(s.url) === String(id))
+                    if (idx !== -1) {
+                        historico[idx].views = data.views
+                        saveLocal()
+                        broadcastRealtime({ type: 'site_update', site: historico[idx] })
+                    }
+                }
+            })
+            .catch(() => { hasServer = false })
+        return
+    }
+
+    const idx = historico.findIndex(s => String(s.id) === String(id) || String(s.url) === String(id))
+    if (idx !== -1) {
+        historico[idx].views = (historico[idx].views || 0) + 1
+        saveLocal()
+        broadcastRealtime({ type: 'site_update', site: historico[idx] })
+    }
+}
+
 function attachLikeHandlers(callback) {
+    attachCommentHandlers()
+    document.querySelectorAll('.site-link').forEach(link => {
+        link.removeEventListener('click', link.viewHandler)
+        link.viewHandler = () => {
+            const id = link.getAttribute('data-id')
+            registrarVisualizacao(id)
+        }
+        link.addEventListener('click', link.viewHandler)
+    })
     document.querySelectorAll('.like-btn').forEach(btn => {
         btn.removeEventListener('click', btn.clickHandler)
         btn.clickHandler = async (e) => {
@@ -909,6 +1964,7 @@ function attachLikeHandlers(callback) {
             if (idx !== -1) {
                 historico[idx].likes = (historico[idx].likes || 0) + 1
                 saveLocal()
+                broadcastRealtime({ type: 'site_update', site: historico[idx] })
                 if (callback) callback()
             }
         }
@@ -933,6 +1989,7 @@ function attachLikeHandlers(callback) {
             if (idx !== -1) {
                 historico[idx].dislikes = (historico[idx].dislikes || 0) + 1
                 saveLocal()
+                broadcastRealtime({ type: 'site_update', site: historico[idx] })
                 if (callback) callback()
             }
         }
@@ -951,6 +2008,7 @@ const homeBtn = document.getElementById('home')
 if (homeBtn) {
     homeBtn.addEventListener('click', (e) => {
         e.preventDefault()
+        currentView = 'home'
         tela.innerHTML = `
             <nav class="home" id="home2">
                  <h3>Sites Populares</h3>
@@ -973,14 +2031,31 @@ async function loadAndShowSites() {
             hasServer = false
         }
     }
+
+    // busca a versão mais recente do banco compartilhado antes de exibir,
+    // assim sites publicados por outras pessoas aparecem aqui também
+    if (cloudReady) {
+        try {
+            const data = await cloudGetSites()
+            if (data && Array.isArray(data.sites)) {
+                historico = data.sites
+                localStorage.setItem('nex_historico', JSON.stringify(historico))
+            }
+        } catch (e) {
+            console.warn('Não foi possível atualizar a lista compartilhada agora, mostrando dados locais.')
+        }
+    }
+
     // fallback local
-    // show top 10 by likes locally
-    const sorted = historico.slice().sort((a, b) => (b.likes || 0) - (a.likes || 0))
-    showSitesList(sorted.slice(0, 10))
+    // mostra TODOS os sites que já foram compartilhados por qualquer pessoa,
+    // com os mais recentes primeiro (para não esconder publicações novas)
+    const ordenados = historico.slice().sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    showSitesList(ordenados)
 }
 
 criar.addEventListener('click', (e) => {
     e.preventDefault()
+    currentView = 'criar'
 
     if (!token || !username) {
         tela.innerHTML = `
@@ -1050,16 +2125,29 @@ criar.addEventListener('click', (e) => {
             }
         }
 
+        // busca a versão mais recente compartilhada antes de inserir, para não sobrescrever
+        // sites que outras pessoas publicaram enquanto esta aba estava aberta
+        if (cloudReady) {
+            try {
+                const data = await cloudGetSites()
+                if (data && Array.isArray(data.sites)) {
+                    historico = data.sites
+                }
+            } catch (err) { /* segue com a lista local mesmo */ }
+        }
+
         const novoSite = {
             id: 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
             nome, url, descri,
             owner: username,
             likes: 0,
             dislikes: 0,
+            views: 0,
             createdAt: new Date().toISOString()
         }
         historico.unshift(novoSite)
         saveLocal()
+        broadcastRealtime({ type: 'novo_site', site: novoSite })
         tela.innerHTML = `<div class="resultado"><h2>${escapeHTML(nome)}</h2><strong>Site:</strong> <a href="${escapeHTML(url)}" target="_blank">${escapeHTML(url)}</a><p><strong>Descrição:</strong> ${escapeHTML(descri)}</p></div>`
         loadAndShowSites()
     })
@@ -1067,6 +2155,7 @@ criar.addEventListener('click', (e) => {
 
 meusites.addEventListener('click', async (e) => {
     e.preventDefault()
+    currentView = 'meusites'
 
     if (!token || !username) {
         tela.innerHTML = `
@@ -1097,14 +2186,179 @@ meusites.addEventListener('click', async (e) => {
         }
     }
 
+    if (cloudReady) {
+        try {
+            const data = await cloudGetSites()
+            if (data && Array.isArray(data.sites)) {
+                historico = data.sites
+                localStorage.setItem('nex_historico', JSON.stringify(historico))
+            }
+        } catch (e) { /* segue com dados locais */ }
+    }
+
     // local fallback (comparação sem diferenciar maiúsculas/minúsculas,
     // para não falhar se o owner foi salvo com capitalização diferente)
     const mineLocal = historico.filter(s => (s.owner || '').toLowerCase() === username.toLowerCase())
     showSitesList(mineLocal)
 })
 
+perfilBtn.addEventListener('click', async (e) => {
+    e.preventDefault()
+    currentView = 'perfil'
+
+    if (!token || !username) {
+        tela.innerHTML = `
+            <div class="gate">
+                <h2>Você precisa estar logado</h2>
+                <p>Faça login para ver seu perfil.</p>
+            </div>
+        `
+        setTimeout(() => loginBtn.click(), 1200)
+        return
+    }
+
+    tela.innerHTML = `
+        <div class="perfil-wrap">
+            <div class="perfil-header">
+                <div class="perfil-avatar" style="background:${corAvatar(username)}">${escapeHTML((username || '?').trim().charAt(0).toUpperCase())}</div>
+                <div>
+                    <h3>${escapeHTML(username)}</h3>
+                    <p>seu perfil na NexSites</p>
+                </div>
+            </div>
+            <div class="perfil-stats" id="perfilStats"></div>
+            <h4><i class="bi bi-bar-chart-line"></i> Seus sites mais visualizados</h4>
+            <div class="ranking-list" id="rankingViews"></div>
+            <h4 style="margin-top:30px;"><i class="bi bi-chat-square-text"></i> Comentários nos seus sites</h4>
+            <div class="perfil-comments-list" id="perfilComments"></div>
+        </div>
+    `
+
+    let meusSites = []
+
+    if (hasServer) {
+        try {
+            const res = await fetch('/api/sites')
+            const sites = await res.json()
+            meusSites = sites.filter(s => s.owner === username)
+        } catch (e) {
+            hasServer = false
+        }
+    }
+
+    if (!hasServer) {
+        if (cloudReady) {
+            try {
+                const data = await cloudGetSites()
+                if (data && Array.isArray(data.sites)) {
+                    historico = data.sites
+                    localStorage.setItem('nex_historico', JSON.stringify(historico))
+                }
+            } catch (e) { /* segue com dados locais */ }
+        }
+        meusSites = historico.filter(s => (s.owner || '').toLowerCase() === username.toLowerCase())
+    }
+
+    const totalSites = meusSites.length
+    const totalViews = meusSites.reduce((acc, s) => acc + (s.views || 0), 0)
+    const totalLikes = meusSites.reduce((acc, s) => acc + (s.likes || 0), 0)
+
+    document.getElementById('perfilStats').innerHTML = `
+        <div class="stat-card">
+            <div class="stat-num">${totalSites}</div>
+            <div class="stat-label">Sites criados</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">${totalViews}</div>
+            <div class="stat-label">Visualizações totais</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-num">${totalLikes}</div>
+            <div class="stat-label">Curtidas totais</div>
+        </div>
+    `
+
+    const rankingDiv = document.getElementById('rankingViews')
+    const ordenados = meusSites.slice().sort((a, b) => (b.views || 0) - (a.views || 0))
+
+    if (ordenados.length === 0) {
+        rankingDiv.innerHTML = '<p class="empty-state">Você ainda não criou nenhum site.</p>'
+    } else {
+        rankingDiv.innerHTML = ordenados.map((site, i) => `
+            <div class="ranking-item">
+                <div class="ranking-pos ${i === 0 ? 'top1' : ''}">#${i + 1}</div>
+                <div class="ranking-info">
+                    <span class="r-nome">${escapeHTML(site.nome)}</span>
+                    <span class="r-url">${escapeHTML(site.url)}</span>
+                </div>
+                <div class="ranking-views"><i class="bi bi-eye"></i> ${site.views || 0}</div>
+            </div>
+        `).join('')
+    }
+
+    // Comentários recebidos nos sites que este usuário criou
+    const perfilComentariosDiv = document.getElementById('perfilComments')
+    const meusSiteIds = meusSites.map(s => s.id)
+    const comentariosRecebidos = comentarios
+        .filter(c => meusSiteIds.some(id => String(id) === String(c.siteId)))
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+    if (comentariosRecebidos.length === 0) {
+        perfilComentariosDiv.innerHTML = '<p class="empty-state">Nenhum comentário recebido ainda.</p>'
+    } else {
+        perfilComentariosDiv.innerHTML = comentariosRecebidos.map(c => {
+            const siteDoComentario = meusSites.find(s => String(s.id) === String(c.siteId))
+            const nomeSite = siteDoComentario ? siteDoComentario.nome : 'Site removido'
+            return `
+                <div class="perfil-comment-card">
+                    <div class="perfil-comment-meta">
+                        <span class="pc-site"><i class="bi bi-globe2"></i> ${escapeHTML(nomeSite)}</span>
+                        <span class="pc-author">por ${escapeHTML(c.author)}</span>
+                        <span class="pc-date">${c.createdAt ? escapeHTML(c.createdAt.split('T')[0]) : ''}</span>
+                    </div>
+                    <p class="perfil-comment-text">${escapeHTML(c.texto)}</p>
+                    ${c.resposta ? '<div class="reply-badge"><i class="bi bi-check-circle-fill"></i> Você já respondeu</div>' : ''}
+                    <form class="reply-form" data-comment-id="${escapeHTML(c.id)}">
+                        <textarea placeholder="Escreva sua resposta...">${c.resposta ? escapeHTML(c.resposta.texto) : ''}</textarea>
+                        <button type="submit">${c.resposta ? 'Atualizar resposta' : 'Responder'}</button>
+                    </form>
+                </div>
+            `
+        }).join('')
+
+        document.querySelectorAll('.reply-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault()
+                const commentId = form.getAttribute('data-comment-id')
+                const texto = form.querySelector('textarea').value.trim()
+                if (!texto) return
+
+                if (hasServer) {
+                    try {
+                        await fetch(`/api/comments/${commentId}/reply`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                            body: JSON.stringify({ texto })
+                        })
+                        perfilBtn.click()
+                        return
+                    } catch (err) { hasServer = false }
+                }
+
+                const idx = comentarios.findIndex(cm => String(cm.id) === String(commentId))
+                if (idx !== -1) {
+                    comentarios[idx].resposta = { texto, createdAt: new Date().toISOString() }
+                    saveComentarios()
+                }
+                perfilBtn.click()
+            })
+        })
+    }
+})
+
 procuraBtn.addEventListener('click', (e) => {
     e.preventDefault()
+    currentView = 'procurar'
     tela.innerHTML = `
          <div class="procurar">
                 <input type="text" placeholder="Procurar Sites..." id="pesquisa">
@@ -1205,6 +2459,8 @@ loginBtn.addEventListener('click', (e) => {
                 authMessage.style.color = '#3ddc84'
                 authMessage.textContent = '✓ Logado como ' + username
                 updateUserStatus()
+                renderPerfis()
+                startRealtime()
                 setTimeout(() => homeBtn.click(), 1200)
                 return
             } catch (err) {
@@ -1227,6 +2483,8 @@ loginBtn.addEventListener('click', (e) => {
         authMessage.style.color = '#3ddc84'
         authMessage.textContent = '✓ Logado como ' + username
         updateUserStatus()
+        renderPerfis()
+        startRealtime()
         setTimeout(() => homeBtn.click(), 1200)
     })
 })
@@ -1322,6 +2580,7 @@ cadastroBtn.addEventListener('click', (e) => {
 
         usuarios.push({ username: u, passwordHash: hashSenha(p), createdAt: new Date().toISOString() })
         saveUsuarios()
+        renderPerfis()
 
         regMessage.style.color = '#3ddc84'
         regMessage.textContent = '✓ Cadastro realizado com sucesso! Redirecionando para login...'
@@ -1337,6 +2596,15 @@ cadastroBtn.addEventListener('click', (e) => {
         console.error('Erro ao detectar servidor:', e)
         hasServer = false
     }
+
+    if (!hasServer) {
+        try {
+            await initCloudSync()
+        } catch (e) {
+            console.error('Erro ao iniciar sincronização compartilhada:', e)
+            cloudReady = false
+        }
+    }
     
     try {
         updateUserStatus()
@@ -1351,6 +2619,16 @@ cadastroBtn.addEventListener('click', (e) => {
         // Forçar carregamento local como fallback (sem servidor)
         hasServer = false
         loadAndShowSites()
+    }
+
+    try {
+        renderPerfis()
+    } catch (e) {
+        console.error('Erro ao carregar perfis:', e)
+    }
+
+    if (token && username) {
+        startRealtime()
     }
 })()
 
