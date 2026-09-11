@@ -1108,13 +1108,53 @@
         }
 
         @media (max-width: 560px){
-            .logo{ padding: 12px 14px; }
-            .catalogo{ overflow-x: auto; max-width: 100%; margin: auto; display: flex;}
-            .catalogo a{ padding: 7px 9px; }
+            .logo{ padding: 12px 14px; justify-content: center; }
+            .logo > .catalogo,
+            .logo > .sync-badge{ display: none !important; }
+            .user-status{ margin-right: 0; }
+            body{ padding-bottom: 78px; }
+            #footer-menu{
+                display: flex;
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 200;
+                background: rgba(10,13,19,0.92);
+                backdrop-filter: blur(10px);
+                border-top: 1px solid var(--border-soft);
+                border-radius: 0;
+                padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+                gap: 0;
+                justify-content: space-around;
+                align-items: center;
+                overflow-x: auto;
+            }
+            #footer-menu a{
+                padding: 6px 8px;
+                flex: 1;
+                min-width: 0;
+            }
+            #footer-menu a span,
+            #footer-menu a p{
+                font-size: 9.5px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            footer p{ display: none; }
+            footer{
+                margin-top: 0;
+                padding: 0;
+                border-top: none;
+            }
             .sites{ grid-template-columns: 1fr; }
             .perfis-grid{ grid-template-columns: 1fr; }
             .hero-logo{ padding: 46px 16px 40px; }
             .hero-logo-mark{ font-size: 38px; }
+        }
+        @media (min-width: 561px){
+            #footer-menu{ display: none; }
         }
     </style>
 </head>
@@ -1151,6 +1191,10 @@
                 <i class="bi bi-folder2-open"></i>
                 <span>Meus Sites</span>
             </a>
+            <a href="#" id="comentariosBtn" class="hidden">
+                <i class="bi bi-chat-square-text"></i>
+                <span>Comentários</span>
+            </a>
             <a href="#" id="perfilBtn" class="hidden">
                 <i class="bi bi-person-circle"></i>
                 <span>Perfil</span>
@@ -1182,7 +1226,30 @@ const procuraBtn = document.getElementById("procurar")
 const loginBtn = document.getElementById("loginBtn")
 const cadastroBtn = document.getElementById("cadastro")
 const perfilBtn = document.getElementById("perfilBtn")
+const comentariosBtn = document.getElementById("comentariosBtn")
 const cata = document.getElementById("cata")
+
+// Espelha o menu do topo (#cata) dentro do footer, para telas pequenas.
+// Os clones perdem o id (pra não duplicar ids na página) e guardam o
+// id original num data-attribute; ao clicar, disparam o clique no
+// botão original do topo, reaproveitando toda a lógica já existente.
+function prepararCloneFooter() {
+    const footerMenu = document.getElementById('footer-menu')
+    if (!footerMenu || !cata) return
+    footerMenu.innerHTML = ''
+    Array.from(cata.children).forEach(el => {
+        const clone = el.cloneNode(true)
+        if (el.id) clone.dataset.origId = el.id
+        if (el.classList.contains('hidden')) clone.classList.add('hidden')
+        clone.removeAttribute('id')
+        clone.addEventListener('click', (e) => {
+            e.preventDefault()
+            const original = document.getElementById(clone.dataset.origId)
+            if (original) original.click()
+        })
+        footerMenu.appendChild(clone)
+    })
+}
 
 let historico = JSON.parse(localStorage.getItem('nex_historico') || '[]')
 let usuarios = JSON.parse(localStorage.getItem('nex_usuarios') || '[]')
@@ -1233,8 +1300,19 @@ async function cloudSaveSites(sites) {
     await fetch(`${CLOUD_API}/${CLOUD_BIN_ID}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sites })
+        body: JSON.stringify({ sites, comentarios })
     })
+}
+
+// Junta os comentarios vindos do armazenamento compartilhado com os locais,
+// para que cada pessoa veja o que TODO mundo comentou (com o autor de cada um).
+function applyCloudComments(data) {
+    if (!data || !Array.isArray(data.comentarios)) return
+    const porId = new Map()
+    comentarios.forEach(c => porId.set(String(c.id), c))
+    data.comentarios.forEach(c => porId.set(String(c.id), c))
+    comentarios = Array.from(porId.values())
+    localStorage.setItem('nex_comentarios', JSON.stringify(comentarios))
 }
 
 function scheduleCloudSync() {
@@ -1263,6 +1341,7 @@ async function initCloudSync() {
         atualizarSyncBadge()
         try {
             const data = await cloudGetSites()
+            applyCloudComments(data)
             if (data && Array.isArray(data.sites)) {
                 historico = data.sites
                 normalizeSiteIds(historico)
@@ -1336,22 +1415,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 })
 
-/* =========================================================
-   TEMPO REAL ENTRE PESSOAS LOGADAS (PeerJS / WebRTC)
-   -----------------------------------------------------------
-   Quando alguém logado publica, curte, descurte ou visualiza
-   um site, as outras pessoas logadas NESSE MOMENTO recebem a
-   atualização instantaneamente, sem precisar recarregar a
-   página. Funciona com uma "sala" de ID fixo: a primeira
-   pessoa logada que entra vira o hub (retransmissor), as
-   demais se conectam nela. Se o hub sair, a próxima pessoa
-   conectada assume o papel automaticamente.
 
-   Isso é só para atualização em tempo real enquanto as
-   pessoas estão com a aba aberta ao mesmo tempo; a
-   persistência entre sessões continua sendo o armazenamento
-   compartilhado (jsonstorage.net) configurado acima.
-   ========================================================= */
 const HUB_ID = 'nexsites-hub-v1'
 let peer = null
 let isHub = false
@@ -1385,6 +1449,20 @@ function mergeSiteIntoHistorico(site) {
     if (idx !== -1) historico[idx] = site
     else historico.unshift(site)
     localStorage.setItem('nex_historico', JSON.stringify(historico))
+    scheduleCloudSync()
+    refreshCurrentSitesView()
+}
+
+function mergeManySitesIntoHistorico(sites) {
+    // usado quando chega uma sincronização completa (full_sync) de outra pessoa,
+    // por exemplo logo depois de logar e conectar no hub em tempo real
+    if (!Array.isArray(sites) || sites.length === 0) return
+    const mapa = {}
+    historico.forEach(s => { if (s && s.id != null) mapa[String(s.id)] = s })
+    sites.forEach(s => { if (s && s.id != null) mapa[String(s.id)] = s })
+    historico = Object.values(mapa).sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    localStorage.setItem('nex_historico', JSON.stringify(historico))
+    scheduleCloudSync()
     refreshCurrentSitesView()
 }
 
@@ -1424,6 +1502,8 @@ function handleIncomingData(conn, data) {
     } else if (data.type === 'novo_site' || data.type === 'site_update') {
         mergeSiteIntoHistorico(data.site)
         if (isHub) broadcastToClients(data, conn.peer)
+    } else if (data.type === 'full_sync') {
+        mergeManySitesIntoHistorico(data.sites)
     }
 }
 
@@ -1432,6 +1512,12 @@ function setupHub() {
     clientConns = {}
     peer.on('connection', (conn) => {
         clientConns[conn.peer] = conn
+        conn.on('open', () => {
+            // assim que alguém conecta no hub, manda logo a lista completa
+            // de sites já publicados, pra pessoa não precisar esperar uma
+            // nova ação de outro usuário pra ver o que já existe
+            try { conn.send({ type: 'full_sync', sites: historico }) } catch (e) {}
+        })
         conn.on('data', (data) => handleIncomingData(conn, data))
         conn.on('close', () => {
             delete clientConns[conn.peer]
@@ -1659,6 +1745,7 @@ function saveUsuarios() {
 
 function saveComentarios() {
     localStorage.setItem('nex_comentarios', JSON.stringify(comentarios))
+    scheduleCloudSync()
 }
 
 function getSiteComments(siteId) {
@@ -1734,11 +1821,17 @@ function updateUserStatus() {
     const oldStatus = document.querySelector('.user-status')
     if (oldStatus) oldStatus.remove()
 
-    // Mostrar/ocultar o botão de Perfil de acordo com o login
+    // Mostrar/ocultar as opções de autenticação e usuário logado
     if (token && username) {
+        loginBtn.classList.add('hidden')
+        cadastroBtn.classList.add('hidden')
         perfilBtn.classList.remove('hidden')
+        if (comentariosBtn) comentariosBtn.classList.remove('hidden')
     } else {
+        loginBtn.classList.remove('hidden')
+        cadastroBtn.classList.remove('hidden')
         perfilBtn.classList.add('hidden')
+        if (comentariosBtn) comentariosBtn.classList.add('hidden')
     }
 
     if (token && username) {
@@ -1763,6 +1856,8 @@ function updateUserStatus() {
             renderPerfis()
         })
     }
+
+    prepararCloneFooter()
 }
 
 function renderSitesHTML(sitesArray, containerId) {
@@ -1890,18 +1985,23 @@ function attachCommentHandlers() {
             const id = btn.getAttribute('data-id')
             const panel = document.getElementById('comments-panel-' + id)
             if (!panel) return
-            const isOpen = panel.style.display !== 'none'
+            const isOpen = panel.dataset.open === 'true'
 
             // Fecha os comentários de todos os outros sites antes de abrir/alternar este
             document.querySelectorAll('.comments-panel').forEach(p => {
-                if (p !== panel) p.style.display = 'none'
+                if (p !== panel) {
+                    p.dataset.open = 'false'
+                    p.style.display = 'none'
+                }
             })
 
             if (isOpen) {
+                panel.dataset.open = 'false'
                 panel.style.display = 'none'
                 return
             }
             panel.innerHTML = renderComentariosPanelHTML(id)
+            panel.dataset.open = 'true'
             panel.style.display = 'block'
             attachCommentFormHandler(panel, id)
         }
@@ -2037,6 +2137,7 @@ async function loadAndShowSites() {
     if (cloudReady) {
         try {
             const data = await cloudGetSites()
+            applyCloudComments(data)
             if (data && Array.isArray(data.sites)) {
                 historico = data.sites
                 localStorage.setItem('nex_historico', JSON.stringify(historico))
@@ -2130,6 +2231,7 @@ criar.addEventListener('click', (e) => {
         if (cloudReady) {
             try {
                 const data = await cloudGetSites()
+            applyCloudComments(data)
                 if (data && Array.isArray(data.sites)) {
                     historico = data.sites
                 }
@@ -2189,6 +2291,7 @@ meusites.addEventListener('click', async (e) => {
     if (cloudReady) {
         try {
             const data = await cloudGetSites()
+            applyCloudComments(data)
             if (data && Array.isArray(data.sites)) {
                 historico = data.sites
                 localStorage.setItem('nex_historico', JSON.stringify(historico))
@@ -2250,6 +2353,7 @@ perfilBtn.addEventListener('click', async (e) => {
         if (cloudReady) {
             try {
                 const data = await cloudGetSites()
+            applyCloudComments(data)
                 if (data && Array.isArray(data.sites)) {
                     historico = data.sites
                     localStorage.setItem('nex_historico', JSON.stringify(historico))
@@ -2355,6 +2459,72 @@ perfilBtn.addEventListener('click', async (e) => {
         })
     }
 })
+
+if (comentariosBtn) {
+    comentariosBtn.addEventListener('click', async (e) => {
+        e.preventDefault()
+        currentView = 'comentarios'
+
+        if (!token || !username) {
+            tela.innerHTML = `
+                <div class="gate">
+                    <h2>Você precisa estar logado</h2>
+                    <p>Faça login para ver os comentários enviados pelas pessoas.</p>
+                </div>
+            `
+            setTimeout(() => loginBtn.click(), 1200)
+            return
+        }
+
+        tela.innerHTML = `
+            <div class="perfil-wrap">
+                <h4 style="margin-top:20px;"><i class="bi bi-chat-square-text"></i> Comentários enviados por todo mundo</h4>
+                <div class="perfil-comments-list" id="todosComentarios"></div>
+            </div>
+        `
+
+        // busca a lista mais atual de sites e comentários antes de exibir
+        if (cloudReady) {
+            try {
+                const data = await cloudGetSites()
+            applyCloudComments(data)
+                if (data && Array.isArray(data.sites)) {
+                    historico = data.sites
+                    localStorage.setItem('nex_historico', JSON.stringify(historico))
+                }
+            } catch (err) { /* segue com dados locais */ }
+        }
+
+        const listaDiv = document.getElementById('todosComentarios')
+        const todos = comentarios.slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+        if (todos.length === 0) {
+            listaDiv.innerHTML = '<p class="empty-state">Ainda não há comentários em nenhum site.</p>'
+            return
+        }
+
+        listaDiv.innerHTML = todos.map(c => {
+            const siteDoComentario = historico.find(s => String(s.id) === String(c.siteId))
+            const nomeSite = siteDoComentario ? siteDoComentario.nome : 'Site removido'
+            const donoSite = siteDoComentario ? siteDoComentario.owner : ''
+            return `
+                <div class="perfil-comment-card">
+                    <div class="perfil-comment-meta">
+                        <span class="pc-site"><i class="bi bi-globe2"></i> ${escapeHTML(nomeSite)}</span>
+                        <span class="pc-author">por ${escapeHTML(c.author)}${donoSite ? ' · site de ' + escapeHTML(donoSite) : ''}</span>
+                        <span class="pc-date">${c.createdAt ? escapeHTML(c.createdAt.split('T')[0]) : ''}</span>
+                    </div>
+                    <p class="perfil-comment-text">${escapeHTML(c.texto)}</p>
+                    ${c.resposta ? `
+                    <div class="comment-reply">
+                        <div class="comment-reply-header"><i class="bi bi-reply-fill"></i> Resposta do criador</div>
+                        <p>${escapeHTML(c.resposta.texto)}</p>
+                    </div>` : ''}
+                </div>
+            `
+        }).join('')
+    })
+}
 
 procuraBtn.addEventListener('click', (e) => {
     e.preventDefault()
@@ -2586,7 +2756,7 @@ cadastroBtn.addEventListener('click', (e) => {
         regMessage.textContent = '✓ Cadastro realizado com sucesso! Redirecionando para login...'
         setTimeout(() => loginBtn.click(), 1500)
     })
-})
+});
 
 // inicialização
 (async () => {
@@ -2635,6 +2805,8 @@ cadastroBtn.addEventListener('click', (e) => {
      </script>
     <!-- Footer -->
      <footer id="footer">
+        <!-- Menu inferior: em telas pequenas o catálogo migra pra cá -->
+        <div class="catalogo" id="footer-menu"></div>
         <p>© 2026 NexSites. Todos os direitos reservados.</p>
      </footer>
 </body>
