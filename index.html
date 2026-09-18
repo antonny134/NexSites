@@ -1116,31 +1116,37 @@
             #footer-menu{
                 display: flex;
                 position: fixed;
-                left: 0;
-                right: 0;
+                left: 50%;
+                transform: translateX(-50%);
                 bottom: 0;
                 z-index: 200;
+                width: min(100%, 520px);
+                max-width: calc(100% - 12px);
                 background: rgba(10,13,19,0.92);
                 backdrop-filter: blur(10px);
                 border-top: 1px solid var(--border-soft);
-                border-radius: 0;
-                padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
-                gap: 0;
-                justify-content: space-around;
+                border-radius: 18px 18px 0 0;
+                padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+                gap: 4px;
+                justify-content: center;
                 align-items: center;
                 overflow-x: auto;
+                overflow-y: hidden;
             }
             #footer-menu a{
-                padding: 6px 8px;
-                flex: 1;
+                padding: 6px 6px;
+                flex: 1 1 0;
                 min-width: 0;
+                max-width: 90px;
+                justify-content: center;
             }
             #footer-menu a span,
             #footer-menu a p{
-                font-size: 9.5px;
+                font-size: 8.8px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                line-height: 1.1;
             }
             footer p{ display: none; }
             footer{
@@ -1171,9 +1177,17 @@
                 <i class="bi bi-grid"></i>
                 <span>Sites Populares</span>
             </a>
-            <a href="#" id="criar" >
+            <a href="#" id="procurar">
+                <i class="bi bi-search"></i>
+                <span>Procurar</span>
+            </a>
+            <a href="#" id="criar">
                 <i class="bi bi-plus-circle"></i>
                 <p>Criar</p>
+            </a>
+            <a href="#" id="meusites">
+                <i class="bi bi-folder2-open"></i>
+                <span>Meus Sites</span>
             </a>
             <a href="#" id="cadastro">
                  <i class="bi bi-person-plus"></i>
@@ -1183,28 +1197,10 @@
                 <i class="bi bi-box-arrow-in-right"></i>
                 <span>Login</span>
             </a>
-            <a href="#" id="procurar">
-                <i class="bi bi-search"></i>
-                <span>Procurar</span>
-            </a>
-            <a href="#" id="meusites">
-                <i class="bi bi-folder2-open"></i>
-                <span>Meus Sites</span>
-            </a>
-            <a href="#" id="comentariosBtn" class="hidden">
-                <i class="bi bi-chat-square-text"></i>
-                <span>Comentários</span>
-            </a>
             <a href="#" id="perfilBtn" class="hidden">
                 <i class="bi bi-person-circle"></i>
                 <span>Perfil</span>
             </a>
-         </div>
-         <div class="sync-badge off" id="syncBadge" title="Clique para ver detalhes / tentar novamente" style="cursor:pointer;">
-            <span class="dot"></span> verificando...
-         </div>
-         <div class="sync-badge on" id="onlineBadge" style="display:none;">
-            <span class="dot"></span> 0 online agora
          </div>
     </nav>
     <!-- Tela -->
@@ -1383,19 +1379,11 @@ async function initCloudSync() {
         }
         cloudReady = false
     }
-    atualizarSyncBadge()
 }
 
 function atualizarSyncBadge() {
-    const badge = document.getElementById('syncBadge')
-    if (!badge) return
-    if (cloudReady) {
-        badge.className = 'sync-badge on'
-        badge.innerHTML = '<span class="dot"></span> sites compartilhados'
-    } else {
-        badge.className = 'sync-badge off'
-        badge.innerHTML = '<span class="dot"></span> modo local (clique p/ detalhes)'
-    }
+    // Badge removido da interface; mantemos a função como no-op para evitar
+    // referências quebradas em rotinas de sincronização que ainda chamam esta API.
 }
 
 document.addEventListener('DOMContentLoaded', () => {
