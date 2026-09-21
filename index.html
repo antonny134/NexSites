@@ -1377,6 +1377,47 @@
       .toast.saindo {
         animation: toastOut 0.25s ease forwards;
       }
+      .toast.confirm {
+        border-left-color: var(--amber);
+        cursor: default;
+      }
+      .toast.confirm i {
+        color: var(--amber);
+      }
+      .toast.confirm::after {
+        display: none;
+      }
+      .toast-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .toast-actions button {
+        font-family: var(--body-font);
+        font-weight: 600;
+        font-size: 12.5px;
+        padding: 7px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        transition: all 0.15s ease;
+      }
+      .toast-actions .toast-ok {
+        background: var(--green);
+        color: #06110b;
+        border-color: var(--green);
+      }
+      .toast-actions .toast-ok:hover {
+        filter: brightness(1.08);
+      }
+      .toast-actions .toast-cancel {
+        background: var(--surface-2);
+        color: var(--text-muted);
+      }
+      .toast-actions .toast-cancel:hover {
+        color: var(--red);
+        border-color: rgba(255, 107, 107, 0.35);
+      }
       @keyframes toastIn {
         from {
           opacity: 0;
@@ -1621,6 +1662,47 @@
         toast.addEventListener("click", fechar);
         box.appendChild(toast);
         setTimeout(fechar, duracao);
+      }
+
+      // Notificação de confirmação: retorna Promise<boolean> (true = confirmou)
+      function confirmarNotificacao(
+        msg,
+        textoOk = "Confirmar",
+        textoCancelar = "Cancelar",
+      ) {
+        return new Promise((resolve) => {
+          let box = document.getElementById("toast-container");
+          if (!box) {
+            box = document.createElement("div");
+            box.id = "toast-container";
+            document.body.appendChild(box);
+          }
+          const toast = document.createElement("div");
+          toast.className = "toast confirm";
+          toast.innerHTML = `
+            <i class="bi bi-question-circle-fill"></i>
+            <div class="toast-msg">
+                ${msg}
+                <div class="toast-actions">
+                    <button type="button" class="toast-ok">${textoOk}</button>
+                    <button type="button" class="toast-cancel">${textoCancelar}</button>
+                </div>
+            </div>`;
+          const fechar = (resultado) => {
+            if (toast.classList.contains("saindo")) return;
+            toast.classList.add("saindo");
+            setTimeout(() => toast.remove(), 250);
+            resolve(resultado);
+          };
+          toast
+            .querySelector(".toast-ok")
+            .addEventListener("click", () => fechar(true));
+          toast
+            .querySelector(".toast-cancel")
+            .addEventListener("click", () => fechar(false));
+          box.appendChild(toast);
+          toast.querySelector(".toast-ok").focus();
+        });
       }
 
       /* =========================================================
@@ -2714,6 +2796,18 @@
           if (!/^https?:\/\//i.test(url)) {
             url = "https://" + url;
           }
+
+          if (form.dataset.confirmando === "true") return;
+          form.dataset.confirmando = "true";
+          const confirmou = await confirmarNotificacao(
+            "Deseja mesmo compartilhar o site <b>" +
+              escapeHTML(nome) +
+              "</b> com todo mundo?",
+            "Sim, compartilhar",
+            "Cancelar",
+          );
+          form.dataset.confirmando = "false";
+          if (!confirmou) return;
 
           if (hasServer && token) {
             try {
