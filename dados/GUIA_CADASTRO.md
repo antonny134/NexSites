@@ -17,7 +17,7 @@
 ### 1️⃣ Teste o Cadastro Separado
 
 #### Via Botão "Cadastro"
-1. Abra http://localhost:3000
+1. Abra http://127.0.0.1:8000
 2. Clique em **"Cadastro"** (novo botão na navegação)
 3. Você verá uma tela com:
    - Campo de **Usuário**
@@ -126,4 +126,3 @@
 - [ ] Links de redirecionamento funcionam
 - [ ] Dados persistem em `data/users.json`
 - [ ] Senhas estão criptografadas em `data/users.json`
-

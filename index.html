@@ -591,6 +591,7 @@
         margin-top: 10px;
         display: flex;
         gap: 8px;
+        flex-wrap: wrap;
       }
       .like-btn,
       .dislike-btn {
@@ -618,6 +619,22 @@
         border-color: rgba(255, 107, 107, 0.2);
       }
       .dislike-btn:hover {
+        background: rgba(255, 107, 107, 0.16);
+        transform: translateY(-1px);
+      }
+      .delete-site-btn {
+        font-family: var(--body-font);
+        font-weight: 600;
+        font-size: 12.5px;
+        border-radius: 8px;
+        padding: 7px 12px;
+        cursor: pointer;
+        color: var(--red);
+        background: rgba(255, 107, 107, 0.08);
+        border: 1px solid rgba(255, 107, 107, 0.2);
+        transition: all 0.15s ease;
+      }
+      .delete-site-btn:hover {
         background: rgba(255, 107, 107, 0.16);
         transform: translateY(-1px);
       }
@@ -1888,6 +1905,16 @@
       </div>
     </nav>
     <script>
+      const localHosts = ["localhost", "127.0.0.1", "::1", ""];
+      const configuredApiUrl =
+        window.NEXSITES_API_URL ||
+        new URLSearchParams(window.location.search).get("api");
+      const API_BASE =
+        configuredApiUrl ||
+        (localHosts.includes(window.location.hostname)
+          ? `${window.location.protocol === "https:" ? "https:" : "http:"}//127.0.0.1:8000`
+          : "");
+      const apiUrl = (path) => API_BASE + path;
       const tela = document.getElementById("tela");
       const criar = document.getElementById("criar");
       const meusites = document.getElementById("meusites");
@@ -2032,6 +2059,19 @@
         comentarios.forEach((c) => porId.set(String(c.id), c));
         data.comentarios.forEach((c) => porId.set(String(c.id), c));
         comentarios = Array.from(porId.values());
+        localStorage.setItem("nex_comentarios", JSON.stringify(comentarios));
+      }
+
+      async function loadServerComments() {
+        const res = await fetch(apiUrl("/api/comments"));
+        if (!res.ok) throw new Error("Não foi possível carregar os comentários.");
+        const serverComments = await res.json();
+        const byId = new Map();
+        comentarios.forEach((comment) => byId.set(String(comment.id), comment));
+        serverComments.forEach((comment) =>
+          byId.set(String(comment.id), comment),
+        );
+        comentarios = Array.from(byId.values());
         localStorage.setItem("nex_comentarios", JSON.stringify(comentarios));
       }
 
@@ -2521,7 +2561,7 @@
 
       async function tryDetectServer() {
         try {
-          const res = await fetch("/api/sites");
+          const res = await fetch(apiUrl("/api/sites"));
           if (!res.ok) throw new Error("no api");
           return true;
         } catch (e) {
@@ -2666,7 +2706,7 @@
         prepararCloneFooter();
       }
 
-      function renderSitesHTML(sitesArray, containerId) {
+      function renderSitesHTML(sitesArray, containerId, allowDelete = false) {
         if (!sitesArray || sitesArray.length === 0) {
           return '<p class="empty-state">Nenhum site encontrado.</p>';
         }
@@ -2698,6 +2738,7 @@
                         <button class="like-btn" data-id="${escapeHTML(stableId)}">👍 ${site.likes || 0}</button>
                         <button class="dislike-btn" data-id="${escapeHTML(stableId)}">👎 ${site.dislikes || 0}</button>
                         <button class="comments-btn" data-id="${escapeHTML(stableId)}"><i class="bi bi-chat-dots"></i> Comentários (${getSiteComments(stableId).length})</button>
+                        ${allowDelete ? `<button class="delete-site-btn" data-id="${escapeHTML(stableId)}"><i class="bi bi-trash"></i> Excluir</button>` : ""}
                     </div>
                     <div class="comments-panel" id="comments-panel-${escapeHTML(stableId)}" style="display:none;"></div>
                 </div>
@@ -2776,7 +2817,7 @@
 
           if (hasServer) {
             try {
-              await fetch(`/api/sites/${siteId}/comments`, {
+              const res = await fetch(apiUrl(`/api/sites/${siteId}/comments`), {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -2784,12 +2825,27 @@
                 },
                 body: JSON.stringify({ texto }),
               });
+              if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data.error || "Não foi possível enviar o comentário.");
+              }
+              const savedComment = await res.json();
+              comentarios = comentarios.filter(
+                (comment) => String(comment.id) !== String(savedComment.id),
+              );
+              comentarios.push(savedComment);
+              saveComentarios();
               container.innerHTML = renderComentariosPanelHTML(siteId);
               attachCommentFormHandler(container, siteId);
               updateCommentsBtnCount(siteId);
               return;
             } catch (err) {
-              hasServer = false;
+              if (err instanceof TypeError) {
+                hasServer = false;
+              } else {
+                notificar(escapeHTML(err.message), "error");
+                return;
+              }
             }
           }
 
@@ -2846,7 +2902,7 @@
 
       function registrarVisualizacao(id) {
         if (hasServer) {
-          fetch(`/api/sites/${id}/view`, { method: "POST" })
+          fetch(apiUrl(`/api/sites/${id}/view`), { method: "POST" })
             .then((res) => res.json())
             .then((data) => {
               if (data && data.views != null) {
@@ -2900,14 +2956,20 @@
             }
             if (hasServer) {
               try {
-                await fetch(`/api/sites/${id}/like`, {
+                const res = await fetch(apiUrl(`/api/sites/${id}/like`), {
                   method: "POST",
                   headers: { Authorization: "Bearer " + token },
                 });
+                if (!res.ok) {
+                  const data = await res.json().catch(() => ({}));
+                  notificar(escapeHTML(data.error || "Não foi possível curtir o site."), "error");
+                  return;
+                }
                 if (callback) callback();
                 return;
               } catch (err) {
-                hasServer = false;
+                if (err instanceof TypeError) hasServer = false;
+                else return;
               }
             }
             const idx = historico.findIndex(
@@ -2933,14 +2995,20 @@
             }
             if (hasServer) {
               try {
-                await fetch(`/api/sites/${id}/dislike`, {
+                const res = await fetch(apiUrl(`/api/sites/${id}/dislike`), {
                   method: "POST",
                   headers: { Authorization: "Bearer " + token },
                 });
+                if (!res.ok) {
+                  const data = await res.json().catch(() => ({}));
+                  notificar(escapeHTML(data.error || "Não foi possível descurtir o site."), "error");
+                  return;
+                }
                 if (callback) callback();
                 return;
               } catch (err) {
-                hasServer = false;
+                if (err instanceof TypeError) hasServer = false;
+                else return;
               }
             }
             const idx = historico.findIndex(
@@ -2958,11 +3026,66 @@
         });
       }
 
-      function showSitesList(sitesArray) {
+      function removeSiteLocally(siteId, syncCloud = true) {
+        historico = historico.filter((site) => String(site.id) !== String(siteId));
+        comentarios = comentarios.filter(
+          (comment) => String(comment.siteId) !== String(siteId),
+        );
+        localStorage.setItem("nex_historico", JSON.stringify(historico));
+        localStorage.setItem("nex_comentarios", JSON.stringify(comentarios));
+        if (syncCloud) scheduleCloudSync();
+      }
+
+      function attachSiteDeleteHandlers(callback) {
+        document.querySelectorAll(".delete-site-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-id");
+            const site = historico.find((item) => String(item.id) === String(id));
+            const nomeSite = site ? site.nome : "este site";
+            const confirmou = await confirmarNotificacao(
+              "Deseja excluir <b>" + escapeHTML(nomeSite) + "</b>? Essa ação não pode ser desfeita.",
+              "Sim, excluir",
+              "Cancelar",
+            );
+            if (!confirmou) return;
+
+            if (hasServer) {
+              try {
+                const res = await fetch(apiUrl(`/api/sites/${encodeURIComponent(id)}`), {
+                  method: "DELETE",
+                  headers: { Authorization: "Bearer " + token },
+                });
+                if (!res.ok) {
+                  const data = await res.json().catch(() => ({}));
+                  notificar(
+                    escapeHTML(data.error || "Não foi possível excluir o site."),
+                    "error",
+                  );
+                  return;
+                }
+              } catch (err) {
+                notificar("Não foi possível conectar ao servidor para excluir o site.", "error");
+                return;
+              }
+            }
+
+            removeSiteLocally(id, !hasServer);
+            notificar("Site excluído com sucesso.", "success");
+            if (callback) callback();
+          });
+        });
+      }
+
+      function showSitesList(sitesArray, allowDelete = false) {
         const sitesContainer = document.getElementById("sites");
         if (!sitesContainer) return;
-        sitesContainer.innerHTML = renderSitesHTML(sitesArray, "sites");
+        sitesContainer.innerHTML = renderSitesHTML(sitesArray, "sites", allowDelete);
         attachLikeHandlers(() => loadAndShowSites());
+        if (allowDelete) {
+          attachSiteDeleteHandlers(() => {
+            if (currentView === "meusites") meusites.click();
+          });
+        }
       }
 
       const homeBtn = document.getElementById("home");
@@ -2984,7 +3107,7 @@
         if (hasServer) {
           try {
             // show popular on home
-            const res = await fetch("/api/sites/popular");
+            const res = await fetch(apiUrl("/api/sites/popular"));
             const sites = await res.json();
             showSitesList(sites);
             return;
@@ -3398,7 +3521,7 @@
 
           if (hasServer && token) {
             try {
-              const res = await fetch("/api/sites", {
+              const res = await fetch(apiUrl("/api/sites"), {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -3415,12 +3538,19 @@
                   tags: d.tags,
                 }),
               });
-              if (!res.ok) throw new Error("failed");
+              if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                notificar(escapeHTML(data.error || "Não foi possível publicar o site."), "error");
+                return;
+              }
               const site = await res.json();
               mostrarSucesso(Object.assign({}, d, site));
               return;
             } catch (err) {
-              // fallback to local
+              if (!(err instanceof TypeError)) {
+                notificar("Não foi possível publicar o site.", "error");
+                return;
+              }
               hasServer = false;
             }
           }
@@ -3489,10 +3619,11 @@
     `;
         if (hasServer) {
           try {
-            const res = await fetch("/api/sites");
+            const res = await fetch(apiUrl("/api/sites"));
+            if (!res.ok) throw new Error("Não foi possível carregar seus sites.");
             const sites = await res.json();
             const mine = sites.filter((s) => s.owner === username);
-            showSitesList(mine);
+            showSitesList(mine, true);
             return;
           } catch (e) {
             hasServer = false;
@@ -3517,7 +3648,7 @@
         const mineLocal = historico.filter(
           (s) => (s.owner || "").toLowerCase() === username.toLowerCase(),
         );
-        showSitesList(mineLocal);
+        showSitesList(mineLocal, true);
       });
 
       perfilBtn.addEventListener("click", async (e) => {
@@ -3556,7 +3687,8 @@
 
         if (hasServer) {
           try {
-            const res = await fetch("/api/sites");
+            const res = await fetch(apiUrl("/api/sites"));
+            if (!res.ok) throw new Error("Não foi possível carregar seus sites.");
             const sites = await res.json();
             meusSites = sites.filter((s) => s.owner === username);
           } catch (e) {
@@ -3683,7 +3815,7 @@
 
               if (hasServer) {
                 try {
-                  await fetch(`/api/comments/${commentId}/reply`, {
+                  const res = await fetch(apiUrl(`/api/comments/${commentId}/reply`), {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
@@ -3691,10 +3823,26 @@
                     },
                     body: JSON.stringify({ texto }),
                   });
+                  if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    throw new Error(data.error || "Não foi possível enviar a resposta.");
+                  }
+                  const updatedComment = await res.json();
+                  const localIndex = comentarios.findIndex(
+                    (item) => String(item.id) === String(updatedComment.id),
+                  );
+                  if (localIndex === -1) comentarios.push(updatedComment);
+                  else comentarios[localIndex] = updatedComment;
+                  saveComentarios();
                   perfilBtn.click();
                   return;
                 } catch (err) {
-                  hasServer = false;
+                  if (err instanceof TypeError) {
+                    hasServer = false;
+                  } else {
+                    notificar(escapeHTML(err.message), "error");
+                    return;
+                  }
                 }
               }
 
@@ -3831,7 +3979,7 @@
           if (hasServer) {
             try {
               const res = await fetch(
-                "/api/sites/search?q=" + encodeURIComponent(valor),
+                apiUrl("/api/sites/search?q=" + encodeURIComponent(valor)),
               );
               encontrados = await res.json();
             } catch (e) {
@@ -3894,12 +4042,16 @@
 
           if (hasServer) {
             try {
-              const res = await fetch("/api/login", {
+              const res = await fetch(apiUrl("/api/login"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username: u, password: p }),
               });
-              if (!res.ok) throw new Error("login failed");
+              if (!res.ok) {
+                authMessage.style.color = "#ff6b6b";
+                authMessage.textContent = "✗ Erro: usuário ou senha incorretos";
+                return;
+              }
               const data = await res.json();
               token = data.token;
               username = u;
@@ -3913,6 +4065,7 @@
               setTimeout(() => homeBtn.click(), 1200);
               return;
             } catch (err) {
+              if (!(err instanceof TypeError)) return;
               hasServer = false;
             }
           }
@@ -4011,14 +4164,17 @@
 
           if (hasServer) {
             try {
-              const res = await fetch("/api/register", {
+              const res = await fetch(apiUrl("/api/register"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username: u, password: p }),
               });
               if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || "register failed");
+                const error = await res.json().catch(() => ({}));
+                regMessage.style.color = "#ff6b6b";
+                regMessage.textContent =
+                  "✗ Erro: " + (error.error || "não foi possível cadastrar");
+                return;
               }
               regMessage.style.color = "#3ddc84";
               regMessage.textContent =
@@ -4026,6 +4182,7 @@
               setTimeout(() => loginBtn.click(), 2000);
               return;
             } catch (err) {
+              if (!(err instanceof TypeError)) return;
               hasServer = false;
             }
           }
@@ -4059,8 +4216,10 @@
       (async () => {
         try {
           hasServer = await tryDetectServer();
+          if (hasServer) await loadServerComments();
         } catch (e) {
-          console.error("Erro ao detectar servidor:", e);
+          console.error("Erro ao conectar ao servidor:", e);
+          notificar("Não foi possível carregar os dados do servidor.", "error");
           hasServer = false;
         }
 

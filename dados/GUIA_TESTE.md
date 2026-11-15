@@ -4,12 +4,13 @@
 
 ```bash
 cd c:\Users\SAMSUNG\.vscode\NexSites\NexSites
-node server.js
+python -m pip install -r requirements.txt
+python main.py
 ```
 
 Você deve ver:
 ```
-Server running on http://localhost:3000
+Uvicorn running on http://127.0.0.1:8000
 ```
 
 ---
@@ -17,7 +18,7 @@ Server running on http://localhost:3000
 ## 2️⃣ Abrir no Navegador
 
 ```
-http://localhost:3000
+http://127.0.0.1:8000
 ```
 
 ---
@@ -138,7 +139,7 @@ http://localhost:3000
 - Verifique se o servidor está rodando (veja "Server running on..." no terminal)
 
 ### "Servidor indisponível"
-- Verifique se `node server.js` está rodando
+- Verifique se `python main.py` está rodando
 - Tente recarregar a página (F5)
 
 ### "Nenhum site encontrado em Procurar"
@@ -146,4 +147,3 @@ http://localhost:3000
   - Criou algum site (clique em "Criar")
   - Está digitando um termo válido
   - O campo não está vazio
-

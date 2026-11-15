@@ -1,23 +1,19 @@
-# NexSites (demo)
+# NexSites
 
-Servidor simples em Node.js que fornece API para registro, login e envio de sites. O frontend (`index.html` + `java.js`) consome essa API; se o servidor não estiver disponível, há um fallback local via `localStorage`.
+O servidor do projeto é o FastAPI em `main.py`, na raiz. Ele serve o frontend
+(`index.html`) e a API na mesma origem. O `server.js` em `dados/` não é mais
+necessário para iniciar o site.
 
 Instalação e execução:
 
-1. No terminal, instale dependências:
-
 ```bash
-npm install
+python -m pip install -r requirements.txt
+python main.py
 ```
 
-2. Inicie o servidor:
+Abra `http://127.0.0.1:8000`. Se abrir o frontend pelo Live Preview local, as
+chamadas da API também serão direcionadas à porta 8000 do FastAPI.
+Se usar outra porta, informe a URL da API com o parâmetro `?api=...`.
 
-```bash
-npm start
-```
-
-3. Abra o navegador em `http://localhost:3000`.
-
-Notas:
-- Usuários e sites são armazenados em `data/users.json` e `data/sites.json`.
-- Para um ambiente de produção, troque `JWT_SECRET` e use armazenamento e validações adequadas.
+Usuários, sites e comentários ficam em `data/users.json`, `data/sites.json` e
+`data/comments.json`. Defina `JWT_SECRET` com um valor seguro em produção.

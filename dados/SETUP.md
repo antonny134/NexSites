@@ -8,8 +8,7 @@ Antes de acessar o site, você **DEVE** instalar as dependências e iniciar o se
 
 ## 📋 Pré-requisitos
 
-- **Node.js** instalado (versão 12+)
-- **npm** instalado
+- **Python** 3.10+ instalado
 
 ---
 
@@ -25,14 +24,8 @@ cd c:\Users\SAMSUNG\.vscode\NexSites\NexSites
 ### 2️⃣ Instalar Dependências
 
 ```bash
-npm install
+python -m pip install -r requirements.txt
 ```
-
-Isso vai instalar os pacotes:
-- `express` - servidor web
-- `bcryptjs` - criptografia de senhas
-- `cors` - permissão de requisições
-- `jsonwebtoken` - autenticação JWT
 
 **Você só precisa fazer isso uma vez!**
 
@@ -49,14 +42,14 @@ Isso vai instalar os pacotes:
 cd c:\Users\SAMSUNG\.vscode\NexSites\NexSites
 ```
 
-3. **Inicie o servidor:**
+3. **Inicie o servidor Python:**
 ```bash
-node server.js
+python main.py
 ```
 
 4. **Você deve ver a mensagem:**
 ```
-Server running on http://localhost:3000
+Uvicorn running on http://127.0.0.1:8000
 ```
 
 ---
@@ -66,17 +59,16 @@ Server running on http://localhost:3000
 Depois que o servidor estiver rodando:
 
 1. Abra o navegador
-2. Vá para: **http://localhost:3000**
+2. Vá para: **http://127.0.0.1:8000**
 
 ---
 
 ## ✅ Checklist
 
-- [ ] Node.js está instalado? (teste: `node --version`)
-- [ ] npm está instalado? (teste: `npm --version`)
-- [ ] Você rodou `npm install`?
-- [ ] Você iniciou o servidor com `node server.js`?
-- [ ] Você vê a mensagem "Server running on http://localhost:3000"?
+- [ ] Python está instalado? (teste: `python --version`)
+- [ ] Você instalou as dependências com `python -m pip install -r requirements.txt`?
+- [ ] Você iniciou o servidor com `python main.py`?
+- [ ] Você vê a mensagem "Uvicorn running on http://127.0.0.1:8000"?
 
 ---
 
@@ -85,13 +77,13 @@ Depois que o servidor estiver rodando:
 1. **Terminal:**
 ```bash
 cd c:\Users\SAMSUNG\.vscode\NexSites\NexSites
-npm install
-node server.js
+python -m pip install -r requirements.txt
+python main.py
 ```
 
 2. **Navegador:**
 ```
-http://localhost:3000
+http://127.0.0.1:8000
 ```
 
 3. **Teste:**
@@ -104,38 +96,40 @@ http://localhost:3000
 
 ## 🆘 Se Não Funcionar
 
-### Erro: "Cannot find module 'express'"
-→ Você não rodou `npm install` ainda
+### Erro: "No module named fastapi"
+→ As dependências Python ainda não foram instaladas
 
 **Solução:**
 ```bash
-npm install
+python -m pip install -r requirements.txt
 ```
 
-### Erro: "Port 3000 already in use"
-→ Outra aplicação está usando a porta 3000
+### Erro: "Port 8000 already in use"
+→ Outra aplicação está usando a porta 8000.
 
 **Solução (opção 1):**
 - Feche a outra aplicação
 
 **Solução (opção 2):**
-- Use outra porta:
+- No PowerShell, escolha outra porta:
 ```bash
-PORT=3001 node server.js
+$env:PORT = "8001"
+python main.py
 ```
-Depois acesse: `http://localhost:3001`
+Depois acesse: `http://127.0.0.1:8001`
+Se a página também estiver sendo servida nessa porta, abra:
+`http://127.0.0.1:8001/?api=http://127.0.0.1:8001`
 
 ### Página branca/vazia
-→ O servidor não está rodando
+→ O servidor não está rodando ou o navegador ainda está acessando o servidor Node antigo.
 
 **Solução:**
-- Verifique o terminal
-- Se não vir "Server running on...", rode novamente: `node server.js`
+- Verifique o terminal e abra `http://127.0.0.1:8000`
 
 ### Cadastro não funciona
 → Verifique se:
 1. O servidor está rodando (veja o terminal)
-2. Você está em http://localhost:3000
+2. Você está em http://127.0.0.1:8000
 3. Abra a console do navegador (F12) e procure por erros
 
 ---
@@ -145,6 +139,7 @@ Depois acesse: `http://localhost:3001`
 Todos os dados são salvos em:
 - `data/users.json` - Usuários registrados
 - `data/sites.json` - Sites criados
+- `data/comments.json` - Comentários e respostas
 
 Esses arquivos são criados automaticamente na primeira execução.
 
@@ -155,9 +150,9 @@ Esses arquivos são criados automaticamente na primeira execução.
 ```
 NexSites/
 ├── index.html        (Interface do site)
+├── main.py          (API e servidor do site)
+├── requirements.txt (Dependências Python)
 ├── java.js          (Lógica do cliente)
-├── server.js        (API do servidor)
-├── package.json     (Dependências)
 ├── data/
 │   ├── users.json   (Usuários)
 │   └── sites.json   (Sites)
@@ -168,11 +163,6 @@ NexSites/
 
 ## 💡 Dicas
 
-- Mantém um terminal aberto com `node server.js` enquanto usa o site
-- Se mudar o código, reinicie o servidor (Ctrl+C e depois `node server.js` novamente)
-- Use `npm start` como atalho para `node server.js` (definido no package.json)
-
-```bash
-npm start
-```
-
+- Mantenha um terminal aberto com `python main.py` enquanto usa o site
+- Se mudar o código, reinicie o servidor (Ctrl+C e depois `python main.py` novamente)
+- Use `set PORT=8001` no Windows para escolher outra porta.

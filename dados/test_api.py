@@ -2,7 +2,7 @@
 import requests 
 import json
 
-BASE_URL = "http://localhost:3000/api"
+BASE_URL = "http://127.0.0.1:8000/api"
 
 def test_api():
     print("=== Testando API NexSites ===\n")
@@ -30,6 +30,7 @@ def test_api():
     ]
     
     headers = {"Authorization": f"Bearer {token}"}
+    headers["Authorization"] = "Bearer " + token
     site_ids = []
     for site in sites_data:
         res = requests.post(f"{BASE_URL}/sites", json=site, headers=headers)

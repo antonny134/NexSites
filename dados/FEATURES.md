@@ -8,6 +8,7 @@ Mostra **apenas os sites que você criou** após fazer login.
 **Como funciona:**
 - Você precisa estar **logado** para criar sites
 - Clique em **"Meus Sites"** para ver todos os sites que criou
+- Use **"Excluir"** no cartão de um site seu e confirme para removê-lo
 - Os sites aparecem com:
   - Nome, URL e descrição
   - Data de criação
@@ -41,13 +42,21 @@ Busca sites pelo **nome** ou **descrição** em tempo real.
 
 ## 🔄 Fluxo de Dados
 
-### Backend (server.js)
+### Backend (main.py)
 ```
 GET /api/sites              → Lista todos os sites
 GET /api/sites/search?q=X   → Busca sites por nome/descrição
 GET /api/sites/popular      → Top 10 sites com mais likes
+POST /api/register          → Cria uma conta
+POST /api/login             → Autentica e retorna um token
+POST /api/sites             → Publica um site do usuário autenticado
+DELETE /api/sites/:id       → Exclui um site do usuário autenticado que o criou
 POST /api/sites/:id/like    → Curtir um site
 POST /api/sites/:id/dislike → Descurtir um site
+POST /api/sites/:id/view    → Registra uma visualização
+GET /api/comments           → Lista comentários
+POST /api/sites/:id/comments → Comenta em um site
+POST /api/comments/:id/reply → Responde como dono do site
 ```
 
 ### Frontend (java.js)
@@ -83,13 +92,13 @@ showSitesList()        → Mostra sites no container #sites (Home)
 
 1. **Inicie o servidor:**
    ```bash
-   cd c:\Users\SAMSUNG\.vscode\NexSites\NexSites
-   node server.js
+   python -m pip install -r requirements.txt
+   python main.py
    ```
 
 2. **Abra no navegador:**
    ```
-   http://localhost:3000
+   http://127.0.0.1:8000
    ```
 
 3. **Teste o fluxo:**
@@ -104,6 +113,7 @@ showSitesList()        → Mostra sites no container #sites (Home)
 ## 📋 Checklist de Funcionalidades
 
 - [x] **Meus Sites** - Filtra sites por usuário logado
+- [x] **Excluir sites próprios** - Disponível em "Meus Sites", com confirmação e validação de proprietário na API
 - [x] **Procurar Sites** - Busca por nome e descrição em tempo real
 - [x] **Like/Dislike** - Botões 👍👎 em todos os cards
 - [x] **Home** - Mostra top 10 sites com mais likes
@@ -121,4 +131,3 @@ Se quiser adicionar mais funcionalidades:
 - [ ] Avatar de usuário
 - [ ] Perfil público do usuário
 - [ ] Notificações de likes
-

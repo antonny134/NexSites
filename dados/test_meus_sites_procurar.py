@@ -6,7 +6,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "http://localhost:3000/api"
+BASE_URL = "http://127.0.0.1:8000/api"
 
 def test_meus_sites_e_procurar():
     print("\n" + "="*60)
@@ -33,6 +33,7 @@ def test_meus_sites_e_procurar():
     # 3. Criar alguns sites
     print("[3] Criando 3 sites para 'maria'...")
     headers = {"Authorization": f"Bearer {token}"}
+    headers["Authorization"] = "Bearer " + token
     sites_data = [
         {"nome": "Meu Blog Pessoal", "url": "https://maria.blog", "descri": "Blog sobre tecnologia e vida"},
         {"nome": "Meu Portfolio", "url": "https://maria-dev.com", "descri": "Portfólio de projetos"},
@@ -81,5 +82,5 @@ if __name__ == "__main__":
         test_meus_sites_e_procurar()
     except Exception as e:
         print(f"✗ Erro de conexão: {e}")
-        print("  Certifique-se de que o servidor está rodando: node server.js")
+        print("  Certifique-se de que o servidor está rodando: python main.py")
         sys.exit(1)

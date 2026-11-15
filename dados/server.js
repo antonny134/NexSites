@@ -96,6 +96,19 @@ app.post('/api/sites', authMiddleware, (req, res) => {
   res.json(site)
 })
 
+app.delete('/api/sites/:id', authMiddleware, (req, res) => {
+  const sites = readJSON(SITES_FILE)
+  const siteIndex = sites.findIndex(s => String(s.id) === req.params.id)
+  if (siteIndex === -1) return res.status(404).json({ error: 'site not found' })
+  if (sites[siteIndex].owner !== req.user.username) {
+    return res.status(403).json({ error: 'only the site owner can delete it' })
+  }
+
+  sites.splice(siteIndex, 1)
+  writeJSON(SITES_FILE, sites)
+  res.json({ ok: true })
+})
+
 app.get('/api/sites/search', (req, res) => {
   const q = (req.query.q || '').toLowerCase()
   const sites = readJSON(SITES_FILE).map(s => ({ ...s, views: s.views || 0 }))
