@@ -773,90 +773,391 @@
         font-size: 13.5px;
       }
 
-      /* ===== Criar site form (.tela2) ===== */
-      .tela2 {
-        display: flex;
-        justify-content: center;
-        padding: 30px 16px;
-      }
-      .pts {
-        color: var(--text);
+      /* ===== Criar site (profissional) ===== */
+      .criar-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 30px 20px 40px;
         width: 100%;
-        max-width: 480px;
       }
-      .logo2 {
-        padding: 0 0 20px;
-        text-align: center;
+      .criar-head {
+        margin-bottom: 22px;
       }
-      .logo2 h3 {
+      .criar-head .eyebrow {
+        display: inline-block;
+        font-size: 11px;
+        font-family: var(--mono);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--green);
+        margin-bottom: 8px;
+      }
+      .criar-head h2 {
         font-family: var(--display);
-        font-size: 20px;
-        font-weight: 600;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
         color: var(--text);
       }
-      .ps {
-        margin: 0;
-        padding: 24px;
+      .criar-head p {
+        color: var(--text-muted);
+        font-size: 14px;
+        line-height: 1.6;
+        margin-top: 6px;
+        max-width: 620px;
+      }
+      .criar-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+        gap: 22px;
+        align-items: start;
+      }
+      .criar-card {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--radius);
-        display: block;
+        padding: 24px;
       }
-      .ps label {
+      .form-section {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .form-section + .form-section {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border-soft);
+      }
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: var(--display);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .section-title .step {
+        width: 22px;
+        height: 22px;
+        border-radius: 7px;
+        background: rgba(61, 220, 132, 0.12);
+        color: var(--green);
+        font-family: var(--mono);
+        font-size: 11.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .cf {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        min-width: 0;
+      }
+      .cf > label {
         font-size: 12px;
         font-family: var(--mono);
         color: var(--text-faint);
         text-transform: uppercase;
         letter-spacing: 0.04em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
-      .ps input {
+      .cf > label .opt {
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--text-faint);
+        font-size: 11px;
+      }
+      .cf > label .req {
+        color: var(--green);
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 11px;
+      }
+      .criar-card input[type="text"],
+      .criar-card textarea,
+      .criar-card select {
         width: 100%;
         padding: 12px 14px;
         background: var(--bg);
         color: var(--text);
         border: 1px solid var(--border);
-        border-radius: 8px;
-        margin-top: 6px;
+        border-radius: 10px;
         font-family: var(--body-font);
         font-size: 14px;
+        transition:
+          border-color 0.18s ease,
+          box-shadow 0.18s ease;
       }
-      .ps input:focus {
+      .criar-card input:focus,
+      .criar-card textarea:focus,
+      .criar-card select:focus {
         border-color: var(--green-dim);
+        box-shadow: 0 0 0 3px rgba(61, 220, 132, 0.08);
       }
-      .ps textarea {
-        padding: 12px 14px;
-        margin-top: 6px;
-        border-radius: 8px;
-        width: 100%;
-        height: 100px;
-        resize: none;
+      .criar-card ::placeholder {
+        color: var(--text-faint);
+      }
+      .criar-card textarea {
+        min-height: 96px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+      .criar-card select {
+        appearance: none;
+        background-image:
+          linear-gradient(45deg, transparent 50%, var(--text-faint) 50%),
+          linear-gradient(135deg, var(--text-faint) 50%, transparent 50%);
+        background-position:
+          calc(100% - 18px) calc(50% - 2px),
+          calc(100% - 12px) calc(50% - 2px);
+        background-size: 6px 6px;
+        background-repeat: no-repeat;
+      }
+      .cf.invalid input,
+      .cf.invalid textarea,
+      .cf.invalid select {
+        border-color: var(--red);
+      }
+      .cf .hint {
+        font-size: 12px;
+        color: var(--text-faint);
+        line-height: 1.5;
+      }
+      .cf .erro {
+        font-size: 12px;
+        color: var(--red);
+        font-family: var(--mono);
+        display: none;
+      }
+      .cf.invalid .erro {
+        display: block;
+      }
+      .cf .counter {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-faint);
+        text-align: right;
+      }
+      .url-input {
+        display: flex;
+        align-items: stretch;
         background: var(--bg);
-        color: var(--text);
         border: 1px solid var(--border);
-        font-family: var(--body-font);
-        font-size: 14px;
+        border-radius: 10px;
+        overflow: hidden;
+        transition:
+          border-color 0.18s ease,
+          box-shadow 0.18s ease;
       }
-      .ps textarea:focus {
+      .url-input:focus-within {
         border-color: var(--green-dim);
+        box-shadow: 0 0 0 3px rgba(61, 220, 132, 0.08);
       }
-      .ps button {
-        padding: 11px;
-        border-radius: 8px;
+      .cf.invalid .url-input {
+        border-color: var(--red);
+      }
+      .url-input span {
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        color: var(--text-faint);
+        background: var(--surface-2);
+        border-right: 1px solid var(--border);
+      }
+      .criar-card .url-input input {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        background: transparent;
+      }
+      .tags-box {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px 10px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        transition:
+          border-color 0.18s ease,
+          box-shadow 0.18s ease;
+      }
+      .tags-box:focus-within {
+        border-color: var(--green-dim);
+        box-shadow: 0 0 0 3px rgba(61, 220, 132, 0.08);
+      }
+      .tag-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px 4px 10px;
+        border-radius: 999px;
+        font-family: var(--mono);
+        font-size: 11.5px;
+        background: rgba(61, 220, 132, 0.1);
+        color: var(--green);
+        border: 1px solid rgba(61, 220, 132, 0.25);
+      }
+      .tag-chip button {
+        background: none;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0;
+      }
+      .criar-card .tags-box input {
+        flex: 1;
+        min-width: 110px;
+        border: none;
+        box-shadow: none;
+        background: transparent;
+        padding: 5px 4px;
+      }
+      .criar-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 26px;
+        align-items: center;
+      }
+      .btn-publicar {
+        flex: 1;
+        padding: 13px 16px;
+        border-radius: 10px;
         font-size: 15px;
         cursor: pointer;
-        width: 100%;
-        background: var(--green);
+        background: linear-gradient(135deg, var(--green), #68e7a3);
         color: #06110b;
         border: none;
-        font-weight: 600;
+        font-weight: 700;
         font-family: var(--body-font);
-        transition: filter 0.15s ease;
+        transition:
+          filter 0.15s ease,
+          transform 0.15s ease;
       }
-      .ps button:hover {
-        filter: brightness(1.08);
+      .btn-publicar:hover {
+        filter: brightness(1.06);
+        transform: translateY(-1px);
       }
-      .ps button:active {
-        filter: brightness(0.95);
+      .btn-secundario {
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-size: 14px;
+        cursor: pointer;
+        background: var(--surface-2);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        font-family: var(--body-font);
+        font-weight: 600;
+        transition: all 0.15s ease;
+      }
+      .btn-secundario:hover {
+        color: var(--red);
+        border-color: rgba(255, 107, 107, 0.35);
+      }
+      .draft-note {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-faint);
+        margin-top: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .criar-side {
+        position: sticky;
+        top: 86px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .side-label {
+        font-family: var(--mono);
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-faint);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      .preview-box .product-card:hover {
+        transform: none;
+      }
+      .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 4px;
+      }
+      .card-tags span {
+        font-family: var(--mono);
+        font-size: 10.5px;
+        color: var(--text-muted);
+        background: var(--surface-2);
+        border: 1px solid var(--border-soft);
+        border-radius: 999px;
+        padding: 2px 8px;
+      }
+      .card-tags .cat {
+        color: var(--green);
+        border-color: rgba(61, 220, 132, 0.25);
+        background: rgba(61, 220, 132, 0.08);
+      }
+      .dicas-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+      }
+      .dicas-card ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+      .dicas-card li {
+        font-size: 13px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        display: flex;
+        gap: 9px;
+      }
+      .dicas-card li i {
+        color: var(--green);
+        margin-top: 2px;
+      }
+      @media (max-width: 860px) {
+        .criar-grid {
+          grid-template-columns: 1fr;
+        }
+        .criar-side {
+          position: static;
+        }
+      }
+      @media (max-width: 560px) {
+        .field-row {
+          grid-template-columns: 1fr;
+        }
+        .criar-head h2 {
+          font-size: 23px;
+        }
+        .criar-card {
+          padding: 18px;
+        }
       }
 
       /* ===== Result preview ===== */
@@ -1545,7 +1846,7 @@
       <div class="catalogo" id="cata">
         <a href="#" id="home">
           <i class="bi bi-grid"></i>
-          <span>Populares</span>
+          <span>Sites</span>
         </a>
         <a href="#" id="procurar">
           <i class="bi bi-search"></i>
@@ -1597,10 +1898,7 @@
       const comentariosBtn = document.getElementById("comentariosBtn");
       const cata = document.getElementById("cata");
 
-      // Espelha o menu do topo (#cata) dentro do footer, para telas pequenas.
-      // Os clones perdem o id (pra não duplicar ids na página) e guardam o
-      // id original num data-attribute; ao clicar, disparam o clique no
-      // botão original do topo, reaproveitando toda a lógica já existente.
+    
       function prepararCloneFooter() {
         const footerMenu = document.getElementById("footer-menu");
         if (!footerMenu || !cata) return;
@@ -1705,31 +2003,7 @@
         });
       }
 
-      /* =========================================================
-   ARMAZENAMENTO COMPARTILHADO (jsonstorage.net)
-   -----------------------------------------------------------
-   Sem servidor próprio, o localStorage sozinho NUNCA mostra
-   sites de outras pessoas (cada navegador só vê o que ele
-   mesmo salvou). Para os sites publicados por qualquer
-   usuário aparecerem para todo mundo, usamos um "bin" JSON
-   gratuito no jsonstorage.net como banco de dados compartilhado.
-
-   COMO ATIVAR (uma única vez):
-   1) Abra este arquivo no navegador.
-   2) Se CLOUD_BIN_ID estiver vazio, o app cria um bin
-      automaticamente na primeira execução e mostra uma notificação
-      com o ID gerado (também aparece no console - F12).
-   3) Copie esse ID e cole aqui embaixo, na constante
-      CLOUD_BIN_ID, substituindo a string vazia.
-   4) Salve o arquivo. A partir daí, TODOS que abrirem essa
-      cópia do arquivo (com o ID já preenchido) vão
-      compartilhar a mesma lista de sites.
-
-   Limites do plano grátis: ~1000 requisições/mês e 64kb por
-   item. Para um projeto em produção com muito tráfego, o
-   ideal seria migrar para Firebase/Supabase.
-   ========================================================= */
-      const CLOUD_BIN_ID = ""; // <-- cole aqui o ID gerado (ex: "9f3a.../xxxxxxxx")
+      const CLOUD_BIN_ID = ""; 
       const CLOUD_API = "https://api.jsonstorage.net/v1/json";
       let cloudReady = false;
       let cloudSyncTimer = null;
@@ -2415,6 +2689,7 @@
                     <h2><span class="card-favicon">${escapeHTML(initial)}</span>${escapeHTML(site.nome)}</h2>
                     <a href="${escapeHTML(site.url)}" target="_blank" rel="noopener noreferrer" class="site-link" data-id="${escapeHTML(stableId)}">${escapeHTML(site.url)}</a>
                     <p>${escapeHTML(site.descri || "")}</p>
+                    ${site.categoria || (site.tags && site.tags.length) ? `<div class="card-tags">${site.categoria ? `<span class="cat">${escapeHTML(site.categoria)}</span>` : ""}${(site.tags || []).map((t) => `<span>#${escapeHTML(t)}</span>`).join("")}</div>` : ""}
                     <div class="card-meta">
                         <span class="card-views"><i class="bi bi-eye"></i> ${site.views || 0} visualizações</span>
                         <span>enviado por ${escapeHTML(site.owner || "local")} · ${site.createdAt ? escapeHTML(site.createdAt.split("T")[0]) : ""}</span>
@@ -2746,68 +3021,380 @@
         showSitesList(ordenados);
       }
 
+      /* =========================================================
+   CRIAR SITE (formulário completo com pré-visualização)
+   ========================================================= */
+      const CATEGORIAS = [
+        "Portfólio",
+        "Blog",
+        "Loja / E-commerce",
+        "Ferramenta / Utilitário",
+        "Jogo",
+        "Educação",
+        "Landing page",
+        "Rede social",
+        "Outro",
+      ];
+
+      function renderCardPreview(d) {
+        const domain = getDomain(d.url) || "seusite.com";
+        const initial = (d.nome || "?").trim().charAt(0).toUpperCase() || "?";
+        const tagsHtml =
+          (d.categoria
+            ? `<span class="cat">${escapeHTML(d.categoria)}</span>`
+            : "") +
+          (d.tags || []).map((t) => `<span>#${escapeHTML(t)}</span>`).join("");
+        return `
+    <div class="product-card">
+      <div class="card-chrome">
+        <div class="card-dots"><span></span><span></span><span></span></div>
+        <div class="card-urlbar">${escapeHTML(domain)}</div>
+      </div>
+      <div class="card-body">
+        <h2><span class="card-favicon">${escapeHTML(initial)}</span>${escapeHTML(d.nome || "Nome do seu site")}</h2>
+        <a href="#" onclick="return false">${escapeHTML(d.url || "https://seusite.com")}</a>
+        <p>${escapeHTML(d.descri || "A descrição curta do seu site aparece aqui.")}</p>
+        ${tagsHtml ? `<div class="card-tags">${tagsHtml}</div>` : ""}
+        <div class="card-meta"><span class="card-views"><i class="bi bi-eye"></i> 0 visualizações</span><span>enviado por ${escapeHTML(username || "você")}</span></div>
+      </div>
+    </div>`;
+      }
+
       criar.addEventListener("click", (e) => {
         e.preventDefault();
         currentView = "criar";
 
         if (!token || !username) {
           tela.innerHTML = `
-            <div class="gate">
-                <h2>Você precisa estar logado</h2>
-                <p>Faça login ou crie uma conta para lançar um site.</p>
-            </div>
-        `;
+      <div class="gate">
+        <h2>Você precisa estar logado</h2>
+        <p>Faça login ou crie uma conta para lançar um site.</p>
+      </div>`;
           setTimeout(() => loginBtn.click(), 1200);
           return;
         }
 
+        let rascunho = {};
+        try {
+          rascunho = JSON.parse(localStorage.getItem("nex_rascunho") || "{}");
+        } catch (_) {}
+        let tags = Array.isArray(rascunho.tags) ? rascunho.tags.slice(0, 5) : [];
+
         tela.innerHTML = `
-        <nav class="tela2">
-                <div class="pts">
-                        <div class="logo2">
-                                <h3>PUBLIQUE SEU SITE PARA TODO MUNDO</h3>
-                        </div>
-                        <div class="ps">
-                                <form id="formulario">
-                                        <label>NOME DO SITE:</label><br>
-                                        <input type="text"  required id="nome">
-                                        <br><br>
-                                        <label>URL DO SITE:</label><br>
-                                        <input type="text"required id="url">
-                                        <br><br>
-                                        <label>DESCRIÇÃO</label><br>
-                                        <textarea required id="descri"></textarea>
-                                        <br><br>
-                                        <button type="submit">Enviar</button>
-                                </form>
-                        </div>
+    <div class="criar-wrap">
+      <div class="criar-head">
+        <span class="eyebrow">// novo site</span>
+        <h2>Publique seu site na NexSites</h2>
+        <p>Preencha as informações abaixo. Quanto mais completo o cadastro, mais fácil para outras pessoas encontrarem e seguirem o seu trabalho.</p>
+      </div>
+      <div class="criar-grid">
+        <div class="criar-card">
+          <form id="formulario" novalidate>
+            <div class="form-section">
+              <div class="section-title"><span class="step">1</span> Informações básicas</div>
+              <div class="cf" data-campo="nome">
+                <label for="nome">Nome do site <span class="req">obrigatório</span></label>
+                <input type="text" id="nome" maxlength="50" placeholder="Ex.: Meu Portfólio" autocomplete="off">
+                <div class="counter" id="nomeCount">0/50</div>
+                <div class="erro">Informe um nome com pelo menos 3 caracteres.</div>
+              </div>
+              <div class="cf" data-campo="url">
+                <label for="url">URL do site <span class="req">obrigatório</span></label>
+                <div class="url-input"><span>https://</span><input type="text" id="url" placeholder="meusite.com.br" autocomplete="off" inputmode="url"></div>
+                <div class="erro">Informe um endereço válido, como meusite.com.br.</div>
+              </div>
+              <div class="field-row">
+                <div class="cf" data-campo="categoria">
+                  <label for="categoria">Categoria <span class="req">obrigatório</span></label>
+                  <select id="categoria">
+                    <option value="">Selecione...</option>
+                    ${CATEGORIAS.map((c) => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("")}
+                  </select>
+                  <div class="erro">Escolha uma categoria.</div>
                 </div>
-        </nav>
-    `;
+                <div class="cf">
+                  <label for="idioma">Idioma</label>
+                  <select id="idioma">
+                    <option value="Português">Português</option>
+                    <option value="Inglês">Inglês</option>
+                    <option value="Espanhol">Espanhol</option>
+                    <option value="Outro">Outro</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-title"><span class="step">2</span> Descrição</div>
+              <div class="cf" data-campo="descri">
+                <label for="descri">Descrição curta <span class="req">obrigatório</span></label>
+                <textarea id="descri" maxlength="140" placeholder="Em uma ou duas frases, o que as pessoas encontram no seu site?"></textarea>
+                <div class="counter" id="descriCount">0/140</div>
+                <div class="erro">A descrição precisa ter pelo menos 20 caracteres.</div>
+              </div>
+              <div class="cf">
+                <label for="detalhes">Detalhes <span class="opt">opcional</span></label>
+                <textarea id="detalhes" maxlength="600" placeholder="Conte mais: objetivo do projeto, funcionalidades, público-alvo..."></textarea>
+                <div class="counter" id="detalhesCount">0/600</div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-title"><span class="step">3</span> Descoberta e contato</div>
+              <div class="cf">
+                <label for="tagInput">Tags <span class="opt">até 5 · Enter para adicionar</span></label>
+                <div class="tags-box" id="tagsBox"><input type="text" id="tagInput" placeholder="Ex.: javascript, css, design" autocomplete="off"></div>
+                <div class="hint">Ajudam a busca a encontrar o seu site.</div>
+              </div>
+              <div class="cf" data-campo="repo">
+                <label for="repo">Repositório <span class="opt">opcional</span></label>
+                <input type="text" id="repo" placeholder="https://github.com/usuario/projeto" autocomplete="off" inputmode="url">
+                <div class="erro">Informe um link válido (começando com http:// ou https://).</div>
+              </div>
+            </div>
+
+            <div class="criar-actions">
+              <button type="button" class="btn-secundario" id="limparForm">Limpar</button>
+              <button type="submit" class="btn-publicar"><i class="bi bi-rocket-takeoff"></i> Publicar site</button>
+            </div>
+            <div class="draft-note"><i class="bi bi-cloud-check"></i> Rascunho salvo automaticamente neste navegador</div>
+          </form>
+        </div>
+
+        <aside class="criar-side">
+          <div>
+            <div class="side-label"><i class="bi bi-eye"></i> Pré-visualização</div>
+            <div class="preview-box" id="previewBox"></div>
+          </div>
+          <div class="dicas-card">
+            <div class="side-label"><i class="bi bi-lightbulb"></i> Boas práticas</div>
+            <ul>
+              <li><i class="bi bi-check2-circle"></i> Use um nome curto e fácil de lembrar.</li>
+              <li><i class="bi bi-check2-circle"></i> Descreva o que o visitante vai encontrar, não só o que é o site.</li>
+              <li><i class="bi bi-check2-circle"></i> Confirme que o link abre corretamente antes de publicar.</li>
+              <li><i class="bi bi-check2-circle"></i> Escolha tags específicas para ser descoberto na busca.</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>`;
+
         const form = document.getElementById("formulario");
+        const el = (id) => document.getElementById(id);
+        const campos = {
+          nome: el("nome"),
+          url: el("url"),
+          categoria: el("categoria"),
+          idioma: el("idioma"),
+          descri: el("descri"),
+          detalhes: el("detalhes"),
+          repo: el("repo"),
+        };
+
+        // restaura rascunho
+        Object.keys(campos).forEach((k) => {
+          if (rascunho[k]) campos[k].value = rascunho[k];
+        });
+
+        const normalizaUrl = (v) => {
+          v = (v || "").trim().replace(/^https?:\/\//i, "");
+          return v ? "https://" + v : "";
+        };
+        const urlValida = (v) => {
+          try {
+            const u = new URL(v);
+            return (
+              /^https?:$/.test(u.protocol) &&
+              (/\.[a-z]{2,}$/i.test(u.hostname) || u.hostname === "localhost")
+            );
+          } catch (_) {
+            return false;
+          }
+        };
+
+        function renderTags() {
+          const box = el("tagsBox");
+          box.querySelectorAll(".tag-chip").forEach((c) => c.remove());
+          const input = el("tagInput");
+          tags.forEach((t, i) => {
+            const chip = document.createElement("span");
+            chip.className = "tag-chip";
+            chip.innerHTML = `#${escapeHTML(t)} <button type="button" aria-label="Remover tag" data-i="${i}">×</button>`;
+            box.insertBefore(chip, input);
+          });
+          input.style.display = tags.length >= 5 ? "none" : "";
+        }
+        el("tagsBox").addEventListener("click", (ev) => {
+          const b = ev.target.closest("button[data-i]");
+          if (b) {
+            tags.splice(Number(b.dataset.i), 1);
+            renderTags();
+            atualizar();
+          } else el("tagInput").focus();
+        });
+        function addTag() {
+          const input = el("tagInput");
+          const t = input.value
+            .trim()
+            .toLowerCase()
+            .replace(/^#/, "")
+            .replace(/[^a-z0-9à-ú_-]/gi, "")
+            .slice(0, 20);
+          input.value = "";
+          if (t && tags.length < 5 && !tags.includes(t)) {
+            tags.push(t);
+            renderTags();
+            atualizar();
+          }
+        }
+        el("tagInput").addEventListener("keydown", (ev) => {
+          if (ev.key === "Enter" || ev.key === ",") {
+            ev.preventDefault();
+            addTag();
+          } else if (ev.key === "Backspace" && !ev.target.value && tags.length) {
+            tags.pop();
+            renderTags();
+            atualizar();
+          }
+        });
+        el("tagInput").addEventListener("blur", addTag);
+
+        function dadosAtuais() {
+          return {
+            nome: campos.nome.value.trim(),
+            url: normalizaUrl(campos.url.value),
+            categoria: campos.categoria.value,
+            idioma: campos.idioma.value,
+            descri: campos.descri.value.trim(),
+            detalhes: campos.detalhes.value.trim(),
+            repo: campos.repo.value.trim(),
+            tags: tags.slice(),
+          };
+        }
+
+        function atualizar() {
+          const d = dadosAtuais();
+          el("nomeCount").textContent = campos.nome.value.length + "/50";
+          el("descriCount").textContent = campos.descri.value.length + "/140";
+          el("detalhesCount").textContent =
+            campos.detalhes.value.length + "/600";
+          el("previewBox").innerHTML = renderCardPreview(d);
+          try {
+            localStorage.setItem(
+              "nex_rascunho",
+              JSON.stringify({
+                nome: campos.nome.value,
+                url: campos.url.value,
+                categoria: campos.categoria.value,
+                idioma: campos.idioma.value,
+                descri: campos.descri.value,
+                detalhes: campos.detalhes.value,
+                repo: campos.repo.value,
+                tags,
+              }),
+            );
+          } catch (_) {}
+        }
+
+        function validar() {
+          const d = dadosAtuais();
+          const regras = {
+            nome: d.nome.length >= 3,
+            url: urlValida(d.url),
+            categoria: !!d.categoria,
+            descri: d.descri.length >= 20,
+            repo: !d.repo || /^https?:\/\/\S+\.\S+/i.test(d.repo),
+          };
+          let ok = true,
+            primeiro = null;
+          Object.keys(regras).forEach((k) => {
+            const wrap = form.querySelector(`[data-campo="${k}"]`);
+            if (wrap) wrap.classList.toggle("invalid", !regras[k]);
+            if (!regras[k]) {
+              ok = false;
+              if (!primeiro) primeiro = campos[k];
+            }
+          });
+          if (primeiro) primeiro.focus();
+          return ok;
+        }
+
+        Object.values(campos).forEach((c) => {
+          c.addEventListener("input", () => {
+            const wrap = c.closest(".cf");
+            if (wrap) wrap.classList.remove("invalid");
+            atualizar();
+          });
+        });
+        campos.url.addEventListener("blur", () => {
+          campos.url.value = campos.url.value
+            .trim()
+            .replace(/^https?:\/\//i, "");
+          atualizar();
+        });
+
+        el("limparForm").addEventListener("click", async () => {
+          const ok = await confirmarNotificacao(
+            "Limpar todos os campos do formulário?",
+            "Limpar",
+            "Cancelar",
+          );
+          if (!ok) return;
+          form.reset();
+          tags = [];
+          renderTags();
+          form
+            .querySelectorAll(".invalid")
+            .forEach((n) => n.classList.remove("invalid"));
+          localStorage.removeItem("nex_rascunho");
+          atualizar();
+        });
+
+        renderTags();
+        atualizar();
+
         form.addEventListener("submit", async (e) => {
           e.preventDefault();
-          let nome = document.getElementById("nome").value.trim();
-          let url = document.getElementById("url").value.trim();
-          const descri = document.getElementById("descri").value.trim();
-
-          if (!nome || !url) return;
-
-          if (!/^https?:\/\//i.test(url)) {
-            url = "https://" + url;
-          }
-
           if (form.dataset.confirmando === "true") return;
+          if (!validar()) {
+            notificar("Revise os campos destacados antes de publicar.", "warning");
+            return;
+          }
+          const d = dadosAtuais();
+
           form.dataset.confirmando = "true";
           const confirmou = await confirmarNotificacao(
             "Deseja mesmo compartilhar o site <b>" +
-              escapeHTML(nome) +
+              escapeHTML(d.nome) +
               "</b> com todo mundo?",
             "Sim, compartilhar",
             "Cancelar",
           );
           form.dataset.confirmando = "false";
           if (!confirmou) return;
+
+          const mostrarSucesso = (site) => {
+            localStorage.removeItem("nex_rascunho");
+            tela.innerHTML = `
+        <div class="criar-wrap">
+          <div class="criar-card" style="max-width:560px;margin:0 auto;text-align:center;">
+            <div style="font-size:40px;color:var(--green);"><i class="bi bi-check-circle-fill"></i></div>
+            <h2 style="font-family:var(--display);margin:10px 0 6px;">Site publicado!</h2>
+            <p style="color:var(--text-muted);font-size:13.5px;margin-bottom:18px;">Ele já está disponível para toda a comunidade.</p>
+            <div class="preview-box" style="text-align:left;">${renderCardPreview(site)}</div>
+            <div class="criar-actions" style="justify-content:center;">
+              <button type="button" class="btn-secundario" id="novoSite">Publicar outro</button>
+              <button type="button" class="btn-publicar" id="verPopulares">Ver em Populares</button>
+            </div>
+          </div>
+        </div>`;
+            document
+              .getElementById("novoSite")
+              .addEventListener("click", () => criar.click());
+            document
+              .getElementById("verPopulares")
+              .addEventListener("click", () => homeBtn.click());
+          };
 
           if (hasServer && token) {
             try {
@@ -2817,12 +3404,20 @@
                   "Content-Type": "application/json",
                   Authorization: "Bearer " + token,
                 },
-                body: JSON.stringify({ nome, url, descri }),
+                body: JSON.stringify({
+                  nome: d.nome,
+                  url: d.url,
+                  descri: d.descri,
+                  categoria: d.categoria,
+                  idioma: d.idioma,
+                  detalhes: d.detalhes,
+                  repo: d.repo,
+                  tags: d.tags,
+                }),
               });
               if (!res.ok) throw new Error("failed");
               const site = await res.json();
-              tela.innerHTML = `<div class="resultado"><h2>${escapeHTML(site.nome)}</h2><strong>Site:</strong> <a href="${escapeHTML(site.url)}" target="_blank">${escapeHTML(site.url)}</a><p><strong>Descrição:</strong> ${escapeHTML(site.descri)}</p></div>`;
-              loadAndShowSites();
+              mostrarSucesso(Object.assign({}, d, site));
               return;
             } catch (err) {
               // fallback to local
@@ -2850,9 +3445,14 @@
               Date.now() +
               "_" +
               Math.random().toString(36).slice(2, 8),
-            nome,
-            url,
-            descri,
+            nome: d.nome,
+            url: d.url,
+            descri: d.descri,
+            detalhes: d.detalhes,
+            categoria: d.categoria,
+            idioma: d.idioma,
+            repo: d.repo,
+            tags: d.tags,
             owner: username,
             likes: 0,
             dislikes: 0,
@@ -2862,8 +3462,7 @@
           historico.unshift(novoSite);
           saveLocal();
           broadcastRealtime({ type: "novo_site", site: novoSite });
-          tela.innerHTML = `<div class="resultado"><h2>${escapeHTML(nome)}</h2><strong>Site:</strong> <a href="${escapeHTML(url)}" target="_blank">${escapeHTML(url)}</a><p><strong>Descrição:</strong> ${escapeHTML(descri)}</p></div>`;
-          loadAndShowSites();
+          mostrarSucesso(novoSite);
         });
       });
 
@@ -3199,6 +3798,12 @@
         });
       }
 
+      const filtroBusca = (valor) => (site) =>
+        (site.nome || "").toLowerCase().includes(valor) ||
+        (site.descri && site.descri.toLowerCase().includes(valor)) ||
+        (site.categoria && site.categoria.toLowerCase().includes(valor)) ||
+        (site.tags || []).some((t) => String(t).includes(valor));
+
       procuraBtn.addEventListener("click", (e) => {
         e.preventDefault();
         currentView = "procurar";
@@ -3232,19 +3837,11 @@
             } catch (e) {
               hasServer = false;
               // fallback local
-              encontrados = historico.filter(
-                (site) =>
-                  site.nome.toLowerCase().includes(valor) ||
-                  (site.descri && site.descri.toLowerCase().includes(valor)),
-              );
+              encontrados = historico.filter(filtroBusca(valor));
             }
           } else {
             // busca local
-            encontrados = historico.filter(
-              (site) =>
-                site.nome.toLowerCase().includes(valor) ||
-                (site.descri && site.descri.toLowerCase().includes(valor)),
-            );
+            encontrados = historico.filter(filtroBusca(valor));
           }
 
           const sitesContainer = document.getElementById("sites");
