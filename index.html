@@ -1556,6 +1556,137 @@
         background: rgba(61, 220, 132, 0.2);
       }
 
+      /* ===== Perfil detalhado ===== */
+      .perfil-header {
+        flex-wrap: wrap;
+      }
+      .perfil-header .perfil-avatar {
+        width: 72px;
+        height: 72px;
+        font-size: 30px;
+        border-radius: 18px;
+      }
+      .perfil-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .perfil-badge {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-muted);
+        background: var(--surface-2);
+        border: 1px solid var(--border-soft);
+        border-radius: 999px;
+        padding: 3px 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .perfil-badge.destaque {
+        color: var(--green);
+        border-color: rgba(61, 220, 132, 0.25);
+        background: rgba(61, 220, 132, 0.08);
+      }
+      .perfil-section {
+        margin-top: 30px;
+      }
+      .perfil-cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 30px;
+      }
+      .perfil-cols h4 {
+        margin-bottom: 0;
+      }
+      .chip-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-top: 16px;
+      }
+      .chip-user {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 12px 5px 5px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        font-family: var(--display);
+        font-size: 12.5px;
+        color: var(--text);
+      }
+      .chip-user .chip-av {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        color: #0b0f0c;
+        font-size: 11px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .bar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+      .bar-row .bar-label {
+        width: 130px;
+        flex-shrink: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .bar-row .bar-track {
+        flex: 1;
+        height: 8px;
+        background: var(--border-soft);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .bar-row .bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--green-dim), var(--green));
+        border-radius: 6px;
+      }
+      .bar-row .bar-num {
+        width: 28px;
+        text-align: right;
+        color: var(--amber);
+      }
+      .ranking-likes {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--green);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-shrink: 0;
+      }
+      .ranking-sub {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--text-faint);
+        display: block;
+      }
+      @media (max-width: 700px) {
+        .perfil-cols {
+          grid-template-columns: 1fr;
+        }
+        .bar-row .bar-label {
+          width: 90px;
+        }
+      }
+
       /* ===== Sync badge ===== */
       .sync-badge {
         font-family: var(--mono);
@@ -3656,46 +3787,21 @@
         currentView = "perfil";
 
         if (!token || !username) {
-          tela.innerHTML = `
-            <div class="gate">
-                <h2>Você precisa estar logado</h2>
-                <p>Faça login para ver seu perfil.</p>
-            </div>
-        `;
+          tela.innerHTML = `<div class="gate"><h2>Você precisa estar logado</h2><p>Faça login para ver seu perfil.</p></div>`;
           setTimeout(() => loginBtn.click(), 1200);
           return;
         }
 
-        tela.innerHTML = `
-        <div class="perfil-wrap">
-            <div class="perfil-header">
-                <div class="perfil-avatar" style="background:${corAvatar(username)}">${escapeHTML((username || "?").trim().charAt(0).toUpperCase())}</div>
-                <div>
-                    <h3>${escapeHTML(username)}</h3>
-                    <p>seu perfil na NexSites</p>
-                </div>
-            </div>
-            <div class="perfil-stats" id="perfilStats"></div>
-            <h4><i class="bi bi-bar-chart-line"></i> Seus sites mais visualizados</h4>
-            <div class="ranking-list" id="rankingViews"></div>
-            <h4 style="margin-top:30px;"><i class="bi bi-chat-square-text"></i> Comentários nos seus sites</h4>
-            <div class="perfil-comments-list" id="perfilComments"></div>
-        </div>
-    `;
-
         let meusSites = [];
-
         if (hasServer) {
           try {
             const res = await fetch(apiUrl("/api/sites"));
-            if (!res.ok) throw new Error("Não foi possível carregar seus sites.");
-            const sites = await res.json();
-            meusSites = sites.filter((s) => s.owner === username);
-          } catch (e) {
+            if (!res.ok) throw new Error();
+            meusSites = (await res.json()).filter((s) => s.owner === username);
+          } catch (err) {
             hasServer = false;
           }
         }
-
         if (!hasServer) {
           if (cloudReady) {
             try {
@@ -3708,158 +3814,282 @@
                   JSON.stringify(historico),
                 );
               }
-            } catch (e) {
-              /* segue com dados locais */
-            }
+            } catch (err) {}
           }
           meusSites = historico.filter(
             (s) => (s.owner || "").toLowerCase() === username.toLowerCase(),
           );
         }
 
+        const fmtData = (iso) =>
+          iso ? new Date(iso).toLocaleDateString("pt-BR") : "—";
+        const meuNome = username.toLowerCase();
+
+        // dados gerais
+        const usr = usuarios.find((u) => u.username.toLowerCase() === meuNome);
+        const datasSites = meusSites
+          .map((s) => s.createdAt)
+          .filter(Boolean)
+          .sort();
+        const membroDesde = (usr && usr.createdAt) || datasSites[0] || null;
+        const ultimoSite = datasSites.length
+          ? datasSites[datasSites.length - 1]
+          : null;
+
         const totalSites = meusSites.length;
-        const totalViews = meusSites.reduce(
-          (acc, s) => acc + (s.views || 0),
+        const totalViews = meusSites.reduce((a, s) => a + (s.views || 0), 0);
+        const totalLikes = meusSites.reduce((a, s) => a + (s.likes || 0), 0);
+        const totalDislikes = meusSites.reduce(
+          (a, s) => a + (s.dislikes || 0),
           0,
         );
-        const totalLikes = meusSites.reduce(
-          (acc, s) => acc + (s.likes || 0),
-          0,
-        );
+        const mediaViews = totalSites
+          ? (totalViews / totalSites).toFixed(1).replace(/\.0$/, "")
+          : 0;
+        const totalReacoes = totalLikes + totalDislikes;
+        const aprovacao = totalReacoes
+          ? Math.round((totalLikes / totalReacoes) * 100) + "%"
+          : "—";
 
-        document.getElementById("perfilStats").innerHTML = `
-        <div class="stat-card">
-            <div class="stat-num">${totalSites}</div>
-            <div class="stat-label">Sites criados</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-num">${totalViews}</div>
-            <div class="stat-label">Visualizações totais</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-num">${totalLikes}</div>
-            <div class="stat-label">Curtidas totais</div>
-        </div>
-    `;
+        const seguidores = seguidoresList
+          .filter((s) => s.seguido.toLowerCase() === meuNome)
+          .map((s) => s.seguidor);
+        const seguindo = seguidoresList
+          .filter((s) => s.seguidor.toLowerCase() === meuNome)
+          .map((s) => s.seguido);
 
-        const rankingDiv = document.getElementById("rankingViews");
-        const ordenados = meusSites
-          .slice()
-          .sort((a, b) => (b.views || 0) - (a.views || 0));
-
-        if (ordenados.length === 0) {
-          rankingDiv.innerHTML =
-            '<p class="empty-state">Você ainda não criou nenhum site.</p>';
-        } else {
-          rankingDiv.innerHTML = ordenados
-            .map(
-              (site, i) => `
-            <div class="ranking-item">
-                <div class="ranking-pos ${i === 0 ? "top1" : ""}">#${i + 1}</div>
-                <div class="ranking-info">
-                    <span class="r-nome">${escapeHTML(site.nome)}</span>
-                    <span class="r-url">${escapeHTML(site.url)}</span>
-                </div>
-                <div class="ranking-views"><i class="bi bi-eye"></i> ${site.views || 0}</div>
-            </div>
-        `,
-            )
-            .join("");
-        }
-
-        // Comentários recebidos nos sites que este usuário criou
-        const perfilComentariosDiv = document.getElementById("perfilComments");
         const meusSiteIds = meusSites.map((s) => s.id);
         const comentariosRecebidos = comentarios
           .filter((c) =>
             meusSiteIds.some((id) => String(id) === String(c.siteId)),
           )
           .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const respondidos = comentariosRecebidos.filter((c) => c.resposta).length;
+        const comentariosFeitos = comentarios.filter(
+          (c) => (c.author || "").toLowerCase() === meuNome,
+        ).length;
 
+        // categorias e tags
+        const contar = (arr) => {
+          const m = {};
+          arr.forEach((v) => {
+            if (v) m[v] = (m[v] || 0) + 1;
+          });
+          return Object.entries(m).sort((a, b) => b[1] - a[1]);
+        };
+        const categorias = contar(meusSites.map((s) => s.categoria));
+        const tagsUsadas = contar(meusSites.flatMap((s) => s.tags || [])).slice(
+          0,
+          12,
+        );
+        const maxCat = categorias.length ? categorias[0][1] : 1;
+
+        const maisVistos = meusSites
+          .slice()
+          .sort((a, b) => (b.views || 0) - (a.views || 0));
+        const maisCurtidos = meusSites
+          .slice()
+          .sort((a, b) => (b.likes || 0) - (a.likes || 0))
+          .filter((s) => (s.likes || 0) > 0)
+          .slice(0, 5);
+
+        const chipUser = (n) =>
+          `<span class="chip-user"><span class="chip-av" style="background:${corAvatar(n)}">${escapeHTML(n.trim().charAt(0).toUpperCase())}</span>${escapeHTML(n)}</span>`;
+        const stat = (num, label) =>
+          `<div class="stat-card"><div class="stat-num">${num}</div><div class="stat-label">${label}</div></div>`;
+
+        tela.innerHTML = `
+    <div class="perfil-wrap">
+      <div class="perfil-header">
+        <div class="perfil-avatar" style="background:${corAvatar(username)}">${escapeHTML(username.trim().charAt(0).toUpperCase())}</div>
+        <div>
+          <h3>${escapeHTML(username)}</h3>
+          <p>seu perfil na NexSites</p>
+          <div class="perfil-badges">
+            <span class="perfil-badge"><i class="bi bi-calendar3"></i> Membro desde ${fmtData(membroDesde)}</span>
+            ${ultimoSite ? `<span class="perfil-badge"><i class="bi bi-rocket-takeoff"></i> Último site em ${fmtData(ultimoSite)}</span>` : ""}
+            ${categorias.length ? `<span class="perfil-badge destaque"><i class="bi bi-tag"></i> ${escapeHTML(categorias[0][0])}</span>` : ""}
+            ${totalViews >= 100 ? `<span class="perfil-badge destaque"><i class="bi bi-fire"></i> +100 visualizações</span>` : ""}
+          </div>
+        </div>
+      </div>
+
+      <div class="perfil-stats">
+        ${stat(totalSites, "Sites criados")}
+        ${stat(totalViews, "Visualizações")}
+        ${stat(mediaViews, "Média por site")}
+        ${stat(totalLikes, "Curtidas")}
+        ${stat(totalDislikes, "Descurtidas")}
+        ${stat(aprovacao, "Aprovação")}
+        ${stat(seguidores.length, "Seguidores")}
+        ${stat(seguindo.length, "Seguindo")}
+        ${stat(comentariosRecebidos.length, "Comentários recebidos")}
+        ${stat(respondidos + "/" + comentariosRecebidos.length, "Respondidos")}
+        ${stat(comentariosFeitos, "Comentários feitos")}
+      </div>
+
+      <div class="perfil-cols">
+        <div>
+          <h4><i class="bi bi-people"></i> Seguidores (${seguidores.length})</h4>
+          <div class="chip-list">${seguidores.length ? seguidores.map(chipUser).join("") : '<p class="empty-state" style="width:100%">Ninguém segue você ainda.</p>'}</div>
+        </div>
+        <div>
+          <h4><i class="bi bi-person-check"></i> Seguindo (${seguindo.length})</h4>
+          <div class="chip-list">${seguindo.length ? seguindo.map(chipUser).join("") : '<p class="empty-state" style="width:100%">Você ainda não segue ninguém.</p>'}</div>
+        </div>
+      </div>
+
+      <div class="perfil-section">
+        <h4><i class="bi bi-pie-chart"></i> Categorias e tags</h4>
+        <div style="padding-top:14px;">
+          ${
+            categorias.length
+              ? categorias
+                  .map(
+                    ([c, n]) =>
+                      `<div class="bar-row"><span class="bar-label">${escapeHTML(c)}</span><span class="bar-track"><span class="bar-fill" style="display:block;width:${(n / maxCat) * 100}%"></span></span><span class="bar-num">${n}</span></div>`,
+                  )
+                  .join("")
+              : '<p class="empty-state">Publique um site para ver suas categorias.</p>'
+          }
+        </div>
+        ${tagsUsadas.length ? `<div class="card-tags" style="margin-top:10px;">${tagsUsadas.map(([t, n]) => `<span>#${escapeHTML(t)} · ${n}</span>`).join("")}</div>` : ""}
+      </div>
+
+      <div class="perfil-section">
+        <h4><i class="bi bi-bar-chart-line"></i> Seus sites mais visualizados</h4>
+        <div class="ranking-list" id="rankingViews"></div>
+      </div>
+
+      <div class="perfil-section">
+        <h4><i class="bi bi-hand-thumbs-up"></i> Mais curtidos</h4>
+        <div class="ranking-list" id="rankingLikes"></div>
+      </div>
+
+      <div class="perfil-section">
+        <h4><i class="bi bi-chat-square-text"></i> Comentários nos seus sites</h4>
+        <div class="perfil-comments-list" id="perfilComments"></div>
+      </div>
+    </div>`;
+
+        const itemRanking = (site, i, valorHtml) => `
+    <div class="ranking-item">
+      <div class="ranking-pos ${i === 0 ? "top1" : ""}">#${i + 1}</div>
+      <div class="ranking-info">
+        <span class="r-nome">${escapeHTML(site.nome)}</span>
+        <span class="r-url">${escapeHTML(site.url)}</span>
+        <span class="ranking-sub">${site.categoria ? escapeHTML(site.categoria) + " · " : ""}publicado em ${fmtData(site.createdAt)}</span>
+      </div>
+      ${valorHtml}
+    </div>`;
+
+        document.getElementById("rankingViews").innerHTML = maisVistos.length
+          ? maisVistos
+              .map((s, i) =>
+                itemRanking(
+                  s,
+                  i,
+                  `<div class="ranking-views"><i class="bi bi-eye"></i> ${s.views || 0}</div>`,
+                ),
+              )
+              .join("")
+          : '<p class="empty-state">Você ainda não criou nenhum site.</p>';
+
+        document.getElementById("rankingLikes").innerHTML = maisCurtidos.length
+          ? maisCurtidos
+              .map((s, i) =>
+                itemRanking(
+                  s,
+                  i,
+                  `<div class="ranking-likes"><i class="bi bi-hand-thumbs-up"></i> ${s.likes || 0}</div>`,
+                ),
+              )
+              .join("")
+          : '<p class="empty-state">Nenhum site curtido ainda.</p>';
+
+        const perfilComentariosDiv = document.getElementById("perfilComments");
         if (comentariosRecebidos.length === 0) {
           perfilComentariosDiv.innerHTML =
             '<p class="empty-state">Nenhum comentário recebido ainda.</p>';
-        } else {
-          perfilComentariosDiv.innerHTML = comentariosRecebidos
-            .map((c) => {
-              const siteDoComentario = meusSites.find(
-                (s) => String(s.id) === String(c.siteId),
-              );
-              const nomeSite = siteDoComentario
-                ? siteDoComentario.nome
-                : "Site removido";
-              return `
-                <div class="perfil-comment-card">
-                    <div class="perfil-comment-meta">
-                        <span class="pc-site"><i class="bi bi-globe2"></i> ${escapeHTML(nomeSite)}</span>
-                        <span class="pc-author">por ${escapeHTML(c.author)}</span>
-                        <span class="pc-date">${c.createdAt ? escapeHTML(c.createdAt.split("T")[0]) : ""}</span>
-                    </div>
-                    <p class="perfil-comment-text">${escapeHTML(c.texto)}</p>
-                    ${c.resposta ? '<div class="reply-badge"><i class="bi bi-check-circle-fill"></i> Você já respondeu</div>' : ""}
-                    <form class="reply-form" data-comment-id="${escapeHTML(c.id)}">
-                        <textarea placeholder="Escreva sua resposta...">${c.resposta ? escapeHTML(c.resposta.texto) : ""}</textarea>
-                        <button type="submit">${c.resposta ? "Atualizar resposta" : "Responder"}</button>
-                    </form>
-                </div>
-            `;
-            })
-            .join("");
+          return;
+        }
+        perfilComentariosDiv.innerHTML = comentariosRecebidos
+          .map((c) => {
+            const s = meusSites.find((x) => String(x.id) === String(c.siteId));
+            return `
+        <div class="perfil-comment-card">
+          <div class="perfil-comment-meta">
+            <span class="pc-site"><i class="bi bi-globe2"></i> ${escapeHTML(s ? s.nome : "Site removido")}</span>
+            <span class="pc-author">por ${escapeHTML(c.author)}</span>
+            <span class="pc-date">${c.createdAt ? escapeHTML(c.createdAt.split("T")[0]) : ""}</span>
+          </div>
+          <p class="perfil-comment-text">${escapeHTML(c.texto)}</p>
+          ${c.resposta ? '<div class="reply-badge"><i class="bi bi-check-circle-fill"></i> Você já respondeu</div>' : ""}
+          <form class="reply-form" data-comment-id="${escapeHTML(c.id)}">
+            <textarea placeholder="Escreva sua resposta...">${c.resposta ? escapeHTML(c.resposta.texto) : ""}</textarea>
+            <button type="submit">${c.resposta ? "Atualizar resposta" : "Responder"}</button>
+          </form>
+        </div>`;
+          })
+          .join("");
 
-          document.querySelectorAll(".reply-form").forEach((form) => {
-            form.addEventListener("submit", async (e) => {
-              e.preventDefault();
-              const commentId = form.getAttribute("data-comment-id");
-              const texto = form.querySelector("textarea").value.trim();
-              if (!texto) return;
+        document.querySelectorAll(".reply-form").forEach((form) => {
+          form.addEventListener("submit", async (ev) => {
+            ev.preventDefault();
+            const commentId = form.getAttribute("data-comment-id");
+            const texto = form.querySelector("textarea").value.trim();
+            if (!texto) return;
 
-              if (hasServer) {
-                try {
-                  const res = await fetch(apiUrl(`/api/comments/${commentId}/reply`), {
+            if (hasServer) {
+              try {
+                const res = await fetch(
+                  apiUrl(`/api/comments/${commentId}/reply`),
+                  {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",
                       Authorization: "Bearer " + token,
                     },
                     body: JSON.stringify({ texto }),
-                  });
-                  if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    throw new Error(data.error || "Não foi possível enviar a resposta.");
-                  }
-                  const updatedComment = await res.json();
-                  const localIndex = comentarios.findIndex(
-                    (item) => String(item.id) === String(updatedComment.id),
+                  },
+                );
+                if (!res.ok) {
+                  const data = await res.json().catch(() => ({}));
+                  throw new Error(
+                    data.error || "Não foi possível enviar a resposta.",
                   );
-                  if (localIndex === -1) comentarios.push(updatedComment);
-                  else comentarios[localIndex] = updatedComment;
-                  saveComentarios();
-                  perfilBtn.click();
+                }
+                const updated = await res.json();
+                const i = comentarios.findIndex(
+                  (it) => String(it.id) === String(updated.id),
+                );
+                if (i === -1) comentarios.push(updated);
+                else comentarios[i] = updated;
+                saveComentarios();
+                perfilBtn.click();
+                return;
+              } catch (err) {
+                if (err instanceof TypeError) hasServer = false;
+                else {
+                  notificar(escapeHTML(err.message), "error");
                   return;
-                } catch (err) {
-                  if (err instanceof TypeError) {
-                    hasServer = false;
-                  } else {
-                    notificar(escapeHTML(err.message), "error");
-                    return;
-                  }
                 }
               }
+            }
 
-              const idx = comentarios.findIndex(
-                (cm) => String(cm.id) === String(commentId),
-              );
-              if (idx !== -1) {
-                comentarios[idx].resposta = {
-                  texto,
-                  createdAt: new Date().toISOString(),
-                };
-                saveComentarios();
-              }
-              perfilBtn.click();
-            });
+            const idx = comentarios.findIndex(
+              (cm) => String(cm.id) === String(commentId),
+            );
+            if (idx !== -1) {
+              comentarios[idx].resposta = {
+                texto,
+                createdAt: new Date().toISOString(),
+              };
+              saveComentarios();
+            }
+            perfilBtn.click();
           });
-        }
+        });
       });
 
       if (comentariosBtn) {
