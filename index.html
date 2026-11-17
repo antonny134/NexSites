@@ -232,7 +232,6 @@
         gap: 12px;
         padding: 64px 20px 54px;
         margin-bottom: 34px;
-        background: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--radius);
         position: relative;
@@ -2033,6 +2032,10 @@
             $ publique, descubra e siga sites feitos por outras pessoas
           </p>
         </div>
+        <div class="perfis-section">
+          <h3><i class="bi bi-people"></i>Seguir</h3>
+          <div class="perfis-grid" id="perfisComunidade"></div>
+        </div>
       </div>
     </nav>
     <script>
@@ -2086,6 +2089,7 @@
       let token = localStorage.getItem("nex_token") || null;
       let username = localStorage.getItem("nex_user") || null;
       let hasServer = false;
+      let usuariosServer = []; // nomes de todas as pessoas cadastradas no servidor
 
       /* =========================================================
    NOTIFICAÇÕES (substitui alert)
@@ -2178,13 +2182,33 @@
         await fetch(`${CLOUD_API}/${CLOUD_BIN_ID}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sites, comentarios }),
+          body: JSON.stringify({
+            sites,
+            comentarios,
+            seguidores: seguidoresList,
+          }),
         });
       }
 
       // Junta os comentarios vindos do armazenamento compartilhado com os locais,
       // para que cada pessoa veja o que TODO mundo comentou (com o autor de cada um).
+      // Também sincroniza quem segue quem: a nuvem manda nos follows dos outros,
+      // e este navegador manda nos follows de quem está logado (assim "deixar de seguir" funciona).
       function applyCloudComments(data) {
+        if (data && Array.isArray(data.seguidores)) {
+          const meu = (username || "").toLowerCase();
+          const dosOutros = data.seguidores.filter(
+            (s) => (s.seguidor || "").toLowerCase() !== meu,
+          );
+          const meus = seguidoresList.filter(
+            (s) => (s.seguidor || "").toLowerCase() === meu,
+          );
+          seguidoresList = dosOutros.concat(meus);
+          localStorage.setItem(
+            "nex_seguidores",
+            JSON.stringify(seguidoresList),
+          );
+        }
         if (!data || !Array.isArray(data.comentarios)) return;
         const porId = new Map();
         comentarios.forEach((c) => porId.set(String(c.id), c));
@@ -2204,6 +2228,35 @@
         );
         comentarios = Array.from(byId.values());
         localStorage.setItem("nex_comentarios", JSON.stringify(comentarios));
+      }
+
+      // Puxa do servidor Python TUDO que as pessoas postaram:
+      // sites, comentários (com respostas), usuários cadastrados e quem segue quem.
+      async function syncFromServer() {
+        const [sitesRes, comRes, usersRes, followsRes] = await Promise.all([
+          fetch(apiUrl("/api/sites")),
+          fetch(apiUrl("/api/comments")),
+          fetch(apiUrl("/api/users")),
+          fetch(apiUrl("/api/follows")),
+        ]);
+        if (sitesRes.ok) {
+          historico = await sitesRes.json();
+          localStorage.setItem("nex_historico", JSON.stringify(historico));
+        }
+        if (comRes.ok) {
+          comentarios = await comRes.json();
+          localStorage.setItem("nex_comentarios", JSON.stringify(comentarios));
+        }
+        if (usersRes.ok) {
+          usuariosServer = await usersRes.json();
+        }
+        if (followsRes.ok) {
+          seguidoresList = await followsRes.json();
+          localStorage.setItem(
+            "nex_seguidores",
+            JSON.stringify(seguidoresList),
+          );
+        }
       }
 
       function scheduleCloudSync() {
@@ -2362,6 +2415,7 @@
         localStorage.setItem("nex_historico", JSON.stringify(historico));
         scheduleCloudSync();
         refreshCurrentSitesView();
+        renderPerfis();
       }
 
       function mergeManySitesIntoHistorico(sites) {
@@ -2381,6 +2435,7 @@
         localStorage.setItem("nex_historico", JSON.stringify(historico));
         scheduleCloudSync();
         refreshCurrentSitesView();
+        renderPerfis();
       }
 
       function refreshCurrentSitesView() {
@@ -2425,6 +2480,29 @@
           if (isHub) broadcastToClients(data, conn.peer);
         } else if (data.type === "full_sync") {
           mergeManySitesIntoHistorico(data.sites);
+          if (Array.isArray(data.seguidores)) {
+            const meu = (username || "").toLowerCase();
+            const dosOutros = data.seguidores.filter(
+              (s) => (s.seguidor || "").toLowerCase() !== meu,
+            );
+            const meus = seguidoresList.filter(
+              (s) => (s.seguidor || "").toLowerCase() === meu,
+            );
+            seguidoresList = dosOutros.concat(meus);
+            localStorage.setItem(
+              "nex_seguidores",
+              JSON.stringify(seguidoresList),
+            );
+            atualizarBotoesSeguir();
+            renderPerfis();
+          }
+        } else if (data.type === "seguir") {
+          if (data.seguidor && data.seguido) {
+            aplicarSeguir(data.seguidor, data.seguido, !!data.ativo);
+            if (isHub) broadcastToClients(data, conn.peer);
+            atualizarBotoesSeguir();
+            renderPerfis();
+          }
         }
       }
 
@@ -2435,10 +2513,13 @@
           clientConns[conn.peer] = conn;
           conn.on("open", () => {
             // assim que alguém conecta no hub, manda logo a lista completa
-            // de sites já publicados, pra pessoa não precisar esperar uma
-            // nova ação de outro usuário pra ver o que já existe
+            // de sites já publicados e quem segue quem
             try {
-              conn.send({ type: "full_sync", sites: historico });
+              conn.send({
+                type: "full_sync",
+                sites: historico,
+                seguidores: seguidoresList,
+              });
             } catch (e) {}
           });
           conn.on("data", (data) => handleIncomingData(conn, data));
@@ -2564,8 +2645,13 @@
       if (normalizeSiteIds(historico)) {
         saveLocal();
       }
+
+      /* =========================================================
+   SEGUIR PESSOAS
+   ========================================================= */
       function saveSeguidores() {
         localStorage.setItem("nex_seguidores", JSON.stringify(seguidoresList));
+        scheduleCloudSync();
       }
 
       function contarSeguidores(nomeUsuario) {
@@ -2582,6 +2668,39 @@
         );
       }
 
+      // aplica (ou remove) um vínculo seguidor -> seguido, sem duplicar
+      function aplicarSeguir(seguidor, seguido, ativo) {
+        seguidoresList = seguidoresList.filter(
+          (s) =>
+            !(
+              s.seguidor.toLowerCase() === seguidor.toLowerCase() &&
+              s.seguido.toLowerCase() === seguido.toLowerCase()
+            ),
+        );
+        if (ativo) {
+          seguidoresList.push({
+            seguidor,
+            seguido,
+            createdAt: new Date().toISOString(),
+          });
+        }
+        saveSeguidores();
+      }
+
+      // atualiza texto/estilo de todos os botões "Seguir" visíveis na tela
+      function atualizarBotoesSeguir() {
+        document.querySelectorAll("button[data-seguir]").forEach((btn) => {
+          const alvo = btn.getAttribute("data-seguir");
+          const seguindo = !!(token && username && estaSeguindo(username, alvo));
+          btn.classList.toggle("seguindo", seguindo);
+          if (btn.closest(".perfil-card-mini")) {
+            btn.textContent = seguindo ? "Seguindo" : "Seguir";
+          } else {
+            btn.textContent = seguindo ? "Seguindo" : "Seguir " + alvo;
+          }
+        });
+      }
+
       function toggleSeguir(nomeAlvo) {
         if (!token || !username) {
           notificar("Faça login para seguir outros perfis", "warning");
@@ -2589,22 +2708,25 @@
         }
         if (username.toLowerCase() === nomeAlvo.toLowerCase()) return;
 
-        if (estaSeguindo(username, nomeAlvo)) {
-          seguidoresList = seguidoresList.filter(
-            (s) =>
-              !(
-                s.seguidor.toLowerCase() === username.toLowerCase() &&
-                s.seguido.toLowerCase() === nomeAlvo.toLowerCase()
-              ),
-          );
-        } else {
-          seguidoresList.push({
-            seguidor: username,
-            seguido: nomeAlvo,
-            createdAt: new Date().toISOString(),
-          });
+        const ativo = !estaSeguindo(username, nomeAlvo);
+        aplicarSeguir(username, nomeAlvo, ativo);
+        if (hasServer) {
+          fetch(apiUrl("/api/follows"), {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
+            body: JSON.stringify({ seguido: nomeAlvo, ativo }),
+          }).catch(() => {});
         }
-        saveSeguidores();
+        broadcastRealtime({
+          type: "seguir",
+          seguidor: username,
+          seguido: nomeAlvo,
+          ativo,
+        });
+        atualizarBotoesSeguir();
         renderPerfis();
       }
 
@@ -2658,6 +2780,10 @@
                 </div>
                 <p class="hero-logo-sub">$ publique, descubra e siga sites feitos por outras pessoas</p>
             </div>
+            <div class="perfis-section">
+                <h3><i class="bi bi-people"></i>Seguir</h3>
+                <div class="perfis-grid" id="perfisComunidade"></div>
+            </div>
         </div>
     `;
         renderPerfis();
@@ -2675,15 +2801,31 @@
         const gridComunidade = document.getElementById("perfisComunidade");
         if (!gridComunidade) return;
 
-        if (!usuarios.length) {
+        // perfis = usuários cadastrados neste navegador + donos de sites +
+        // pessoas que aparecem em follows. Assim quem publicou um site (mesmo
+        // cadastrado em outro navegador) também pode ser seguido.
+        const setNomes = new Map();
+        const add = (n) => {
+          if (n) setNomes.set(String(n).toLowerCase(), String(n));
+        };
+        usuarios.forEach((u) => add(u.username));
+        usuariosServer.forEach((n) => add(n));
+        historico.forEach((s) => add(s.owner));
+        seguidoresList.forEach((s) => {
+          add(s.seguidor);
+          add(s.seguido);
+        });
+        if (username) add(username);
+
+        if (!setNomes.size) {
           gridComunidade.innerHTML =
             '<p class="empty-state">Ainda não há perfis cadastrados.</p>';
           return;
         }
 
-        const nomes = usuarios
-          .map((u) => u.username)
-          .sort((a, b) => contarSeguidores(b) - contarSeguidores(a));
+        const nomes = [...setNomes.values()].sort(
+          (a, b) => contarSeguidores(b) - contarSeguidores(a),
+        );
 
         gridComunidade.innerHTML = nomes.map(renderPerfilCardMini).join("");
 
@@ -2837,6 +2979,14 @@
         prepararCloneFooter();
       }
 
+      function renderSeguirDonoBtn(owner) {
+        if (!owner) return "";
+        if (username && owner.toLowerCase() === username.toLowerCase())
+          return "";
+        const seguindo = !!(token && username && estaSeguindo(username, owner));
+        return `<button class="seguir-btn ${seguindo ? "seguindo" : ""}" data-seguir="${escapeHTML(owner)}">${seguindo ? "Seguindo" : "Seguir " + escapeHTML(owner)}</button>`;
+      }
+
       function renderSitesHTML(sitesArray, containerId, allowDelete = false) {
         if (!sitesArray || sitesArray.length === 0) {
           return '<p class="empty-state">Nenhum site encontrado.</p>';
@@ -2869,6 +3019,7 @@
                         <button class="like-btn" data-id="${escapeHTML(stableId)}">👍 ${site.likes || 0}</button>
                         <button class="dislike-btn" data-id="${escapeHTML(stableId)}">👎 ${site.dislikes || 0}</button>
                         <button class="comments-btn" data-id="${escapeHTML(stableId)}"><i class="bi bi-chat-dots"></i> Comentários (${getSiteComments(stableId).length})</button>
+                        ${renderSeguirDonoBtn(site.owner)}
                         ${allowDelete ? `<button class="delete-site-btn" data-id="${escapeHTML(stableId)}"><i class="bi bi-trash"></i> Excluir</button>` : ""}
                     </div>
                     <div class="comments-panel" id="comments-panel-${escapeHTML(stableId)}" style="display:none;"></div>
@@ -3069,6 +3220,7 @@
 
       function attachLikeHandlers(callback) {
         attachCommentHandlers();
+        attachSeguirHandlers();
         document.querySelectorAll(".site-link").forEach((link) => {
           link.removeEventListener("click", link.viewHandler);
           link.viewHandler = () => {
@@ -3212,6 +3364,7 @@
         if (!sitesContainer) return;
         sitesContainer.innerHTML = renderSitesHTML(sitesArray, "sites", allowDelete);
         attachLikeHandlers(() => loadAndShowSites());
+        attachSeguirHandlers();
         if (allowDelete) {
           attachSiteDeleteHandlers(() => {
             if (currentView === "meusites") meusites.click();
@@ -3237,10 +3390,21 @@
       async function loadAndShowSites() {
         if (hasServer) {
           try {
-            // show popular on home
-            const res = await fetch(apiUrl("/api/sites/popular"));
+            // mostra TUDO que foi postado por todo mundo, mais recentes primeiro
+            const res = await fetch(apiUrl("/api/sites"));
+            if (!res.ok) throw new Error("api");
             const sites = await res.json();
-            showSitesList(sites);
+            historico = sites;
+            localStorage.setItem("nex_historico", JSON.stringify(historico));
+            showSitesList(
+              sites
+                .slice()
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+                ),
+            );
+            renderPerfis();
             return;
           } catch (e) {
             hasServer = false;
@@ -4226,6 +4390,7 @@
           if (sitesContainer) {
             sitesContainer.innerHTML = renderSitesHTML(encontrados, "sites");
             attachLikeHandlers(doSearch);
+            attachSeguirHandlers();
           }
         };
 
@@ -4290,7 +4455,9 @@
               authMessage.style.color = "#3ddc84";
               authMessage.textContent = "✓ Logado como " + username;
               updateUserStatus();
-              renderPerfis();
+              syncFromServer()
+                .catch(() => {})
+                .then(() => renderPerfis());
               startRealtime();
               setTimeout(() => homeBtn.click(), 1200);
               return;
@@ -4446,7 +4613,7 @@
       (async () => {
         try {
           hasServer = await tryDetectServer();
-          if (hasServer) await loadServerComments();
+          if (hasServer) await syncFromServer();
         } catch (e) {
           console.error("Erro ao conectar ao servidor:", e);
           notificar("Não foi possível carregar os dados do servidor.", "error");
@@ -4469,15 +4636,8 @@
         }
 
         try {
-          await loadAndShowSites();
-        } catch (e) {
-          console.error("Erro ao carregar sites:", e);
-          // Forçar carregamento local como fallback (sem servidor)
-          hasServer = false;
-          loadAndShowSites();
-        }
-
-        try {
+          // mantém a tela inicial (com a Comunidade) visível ao abrir o site;
+          // quem quiser ver os sites clica em "Sites"
           renderPerfis();
         } catch (e) {
           console.error("Erro ao carregar perfis:", e);
